@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_socketio import SocketIO, emit
+from dotenv import load_dotenv
 import os
 from flask_migrate import Migrate
 from utils import fecha_y_hora_colombia, formatear_numero,configurar_socketio, obtener_materiales_bajo_stock, obtener_alertas_almacenista
@@ -28,6 +29,7 @@ app.jinja_env.filters['formatear_numero'] = formatear_numero
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Configuración de base de datos
+load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
