@@ -14,7 +14,7 @@ from models import db, User, Material, Movimiento, Notificacion
 # CONFIGURACIÓN DE LA APP
 # -----------------------------
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback_key')
 
 # SocketIO: inicializar con soporte para eventlet (o gevent si usas gunicorn)
 socketio = SocketIO(app, cors_allowed_origins="*")
