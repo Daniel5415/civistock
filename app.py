@@ -28,7 +28,7 @@ app.jinja_env.filters['formatear_numero'] = formatear_numero
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Configuración de base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'civistock.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Carpeta para uploads
