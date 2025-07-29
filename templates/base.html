@@ -19,7 +19,7 @@
 </head>
 <body>
     <!-- audios -->
-    <audio id="audio-alerta-stock" src="{{ url_for('static', filename='alerta.mp3') }}"></audio>
+    <audio id="audio-alerta-stock" src="{{ url_for('static', filename='alert.mp3') }}"></audio>
     <audio id="audio-notificacion" src="{{ url_for('static', filename='notificacion.mp3') }}"></audio>
 
     <!-- Barra de navegación -->
@@ -131,7 +131,6 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
 
 {% block scripts %}
-<!-- Al final del body, justo antes del cierre -->
 <script>
 function mostrarToast(mensaje, opciones = {}) {
   const container = document.querySelector('.toast-container');
@@ -181,8 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🔌 Conectado a Socket.IO');
   });
 
+  const tipoUsuario = "{{ user_role|lower | default('') }}";
+
   socket.on('nueva_notificacion', function(data) {
-    if (data.tipo_usuario !== '{{ user_role|lower }}') return;
+    if (data.tipo_usuario !== tipoUsuario) return;
 
     const notifMenu = document.querySelector('#notifDropdown + .dropdown-menu');
     const notifBadge = document.querySelector('.notif-count');
@@ -208,21 +209,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('actualizar-tablas', () => {
-    console.log('📥 Evento recibido en el dashboard: actualizar-tablas');
-    fetch('/almacenista/fragmento-panel-alertas')
-      .then(response => response.text())
-      .then(html => {
-        console.log("🔁 HTML recibido:", html);
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const nuevoPanel = doc.querySelector('#panel-alertas');
-        const actualPanel = document.querySelector('#panel-alertas');
-        if (nuevoPanel && actualPanel) {
-          actualPanel.innerHTML = nuevoPanel.innerHTML;
-        }
-      });
+    if (tipoUsuario === 'ingeniero') {
+      fetch('/ingeniero/fragmento-panel-movimientos')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('panel-movimientos').innerHTML = html;
+          console.log("✅ Panel de movimientos actualizado correctamente");
+        });
+    } else if (tipoUsuario === 'almacenista') {
+      fetch('/almacenista/fragmento-panel-alertas')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('panel-alertas').innerHTML = html;
+          console.log("✅ Panel de alertas actualizado correctamente");
+        });
+    }
   });
 
+  // Marcar notificaciones como leídas
   const notifButton = document.getElementById('notifDropdown');
   if (notifButton) {
     notifButton.addEventListener('click', function () {

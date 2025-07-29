@@ -1,0 +1,18 @@
+  <div class="alert-panel">
+    <h4><i class="fas fa-history"></i> Últimos movimientos</h4>
+    <ul>
+      {% if ultimos_movimientos %}
+        {% for mov in ultimos_movimientos %}
+          <li>
+            <i class="fas fa-box"></i>
+            {{ mov.tipo }} de {{ mov.material.nombre }} ({{ mov.cantidad }}) el {{ fecha_y_hora_colombia(mov.fecha).fecha }} a las {{ fecha_y_hora_colombia(mov.fecha).hora }}
+            {% if mov.estado %}
+              - Estado: <strong>{{ mov.estado }}</strong>
+            {% endif %}
+          </li>
+        {% endfor %}
+      {% else %}
+        <li>No hay movimientos recientes.</li>
+      {% endif %}
+    </ul>
+  </div>

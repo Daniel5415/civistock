@@ -1,10 +1,10 @@
-from models import Movimiento, db, Notificacion, Material
+from models import Movimiento, db, Notificacion, Material, User
 from sqlalchemy import func
 from datetime import datetime
 import pytz
 from flask_socketio import SocketIO
 from datetime import datetime
-
+from flask import session
 
 #para fecha
 def fecha_y_hora_colombia(fecha_utc):
@@ -110,3 +110,11 @@ def obtener_alertas_almacenista():
         'ultima_fecha':ultima_fecha,
         'mostrar_alertas':mostrar_alertas
     }
+
+def obtener_alertas_ingeniero():
+
+    usuario = User.query.filter_by(username=session.get('user')).first()
+    ultimos_movimientos = Movimiento.query.filter_by(solicitado_por_id=usuario.id).order_by(Movimiento.fecha.desc()).limit(5).all()
+    return {
+        'ultimos_movimientos': ultimos_movimientos
+    }    

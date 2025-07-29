@@ -566,9 +566,9 @@ def vaciar_notificaciones():
         db.session.commit()
     return redirect(request.referrer or url_for('almacenista.dashboard'))
 
-
-
-
+#--------------------------
+# DEVOLER A PANEL DE ALERTAS
+#--------------------------
 @almacenista_bp.route('/fragmento-panel-alertas')
 def fragmento_panel_alertas():
     datos = obtener_alertas_almacenista()

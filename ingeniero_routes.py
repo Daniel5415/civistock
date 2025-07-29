@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, User, Material, Movimiento,Notificacion
 from datetime import datetime, timezone
 from functools import wraps
-from utils import fecha_y_hora_colombia, emitir_notificacion
+from utils import fecha_y_hora_colombia, emitir_notificacion, obtener_alertas_ingeniero
 import os
 from werkzeug.utils import secure_filename
 from weasyprint import HTML
@@ -428,4 +428,12 @@ def vaciar_notificaciones():
         Notificacion.query.filter_by(usuario_id=user_id).delete()
         db.session.commit()
     return redirect(request.referrer or url_for('ingeniero.dashboard'))
+
+#-------------------------------
+# Obtener alertas ingeniero
+#-------------------------------
+@ingeniero_bp.route('/fragmento-panel-movimientos')
+def fragmento_panel_ingeniero():
+    datos = obtener_alertas_ingeniero()
+    return render_template('Ingeniero/componentes/_fragmento_panel_movimientos_ing.html', **datos,fecha_y_hora_colombia=fecha_y_hora_colombia)
 
