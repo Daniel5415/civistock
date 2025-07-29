@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% include 'toasts_alertas_almacenista.html' %}
+
+{% block title %}Dashboard Almacenista - CIVISTOCK{% endblock %}
+
+{% block content %}
+<div class="welcome-text">
+  <h2>¡Bienvenido Almacenista!</h2>
+  <p>
+    En este panel podrás registrar ingresos de material, actualizar existencias,
+    autorizar retiros del ingeniero y generar reportes mensuales. Herramientas
+    pensadas para que tu gestión sea más sencilla y organizada cada día.
+  </p>
+</div>
+
+<!-- Tarjetas de acciones -->
+<div class="cards-container">
+  <a href="{{ url_for('almacenista.materiales') }}" class="dashboard-card">
+    <div class="card-icon">
+      <img src="{{ url_for('static', filename='ingresar.svg') }}" alt="Icono Ingresar">
+    </div>
+    <h3>Ingresar Material</h3>
+    <p>Registra nuevos ingresos al inventario.</p>
+  </a>
+
+  <a href="{{ url_for('almacenista.actualizar_existencias') }}" class="dashboard-card">
+    <div class="card-icon">
+      <img src="{{ url_for('static', filename='actualizar.svg') }}" alt="Icono Actualizar">
+    </div>
+    <h3>Actualizar Existencias</h3>
+    <p>Modifica las cantidades en bodega.</p>
+  </a>
+
+  <a href="{{ url_for('almacenista.retiros_pendientes') }}" class="dashboard-card">
+    <div class="card-icon">
+      <img src="{{ url_for('static', filename='autorizar.svg') }}" alt="Icono Autorizar">
+    </div>
+    <h3>Autorizar Retiros</h3>
+    <p>Aprueba solicitudes del ingeniero.</p>
+  </a>
+
+  <a href="{{ url_for('almacenista.reportes') }}" class="dashboard-card">
+    <div class="card-icon">
+      <img src="{{ url_for('static', filename='reportes.svg') }}" alt="Icono Reportes">
+    </div>
+    <h3>Reportes Mensuales</h3>
+    <p>Consulta novedades y genera reportes claros para control.</p>
+  </a>
+
+  <a href="{{ url_for('almacenista.existencias') }}" class="dashboard-card">
+    <div class="card-icon">
+      <img src="{{ url_for('static', filename='existencias.svg') }}" alt="Icono Existencias">
+    </div>
+    <h3>Verificar Existencias</h3>
+    <p>Consulta los materiales disponibles.</p>
+  </a>
+</div>
+
+<!-- Panel de alertas -->
+<div id="panel-alertas">
+  {% include 'Almacenista/componentes/_fragmento_panel_alertas.html' %}
+</div>
+
+{% endblock %}

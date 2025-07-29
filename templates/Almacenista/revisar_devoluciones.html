@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% include "toasts_alertas_almacenista.html" %}
+{% block title %}Revisar Devoluciones{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>♻️ Devoluciones Pendientes</h2>
+    <a href="{{ url_for('almacenista.reportes') }}" class="btn btn-secondary mt-2 mb-4">← Volver a reportes</a>
+
+    {% if devoluciones %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Material</th>
+                    <th>Cantidad</th>
+                    <th>Solicitado por</th>
+                    <th>Observación del Ingeniero</th>
+                    <th>Evidencias</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in devoluciones %}
+                <tr>
+                    <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+                    <td>{{ mov.material.nombre }}</td>
+                    <td>{{ mov.cantidad|formatear_numero }} {{ mov.material.unidad }}</td>
+                    <td>{{ mov.usuario.nombre }}</td>
+                    <td>{{ mov.observacion or '-' }}</td>
+                    <td>
+                        <div>
+                            <strong>Ing.:</strong>
+                            {% if mov.evidencia %}
+                                <a href="#" onclick="mostrarModalEvidencia('{{ url_for('static', filename='evidencias/' ~ mov.evidencia) }}'); return false;">Ver</a>
+                            {% else %}
+                                Sin evidencia
+                            {% endif %}
+                        </div>
+                        <div class="mt-1">
+                            <strong>Alm.:</strong>
+                            {% if mov.evidencia_almacenista %}
+                                <a href="#" onclick="mostrarModalEvidencia('{{ url_for('static', filename=mov.evidencia_almacenista) }}'); return false;">Ver</a>
+                            {% else %}
+                                Sin evidencia
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('almacenista.aprobar_o_rechazar_devolucion', id=mov.id) }}" enctype="multipart/form-data">
+                            <div class="mb-2">
+                                <textarea name="observacion_almacenista" class="form-control" rows="2" placeholder="Observación del almacenista..." required></textarea>
+                            </div>
+                            <div class="mb-2">
+                                <label for="evidencia_almacenista_{{ mov.id }}" class="form-label">Adjuntar evidencia (opcional)</label>
+                                <input type="file" name="evidencia_almacenista" accept="image/*,application/pdf" class="form-control form-control-sm">
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" name="decision" value="aceptar" class="btn btn-success btn-sm">✅ Aceptar</button>
+                                <button type="submit" name="decision" value="rechazar" class="btn btn-danger btn-sm">❌ Rechazar</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalEvidencia" tabindex="-1" aria-labelledby="modalEvidenciaLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">📎 Vista previa de evidencia</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body text-center" id="contenidoModalEvidencia">
+            <!-- Contenido dinámico insertado por JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <p>No hay devoluciones pendientes en este momento.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function mostrarModalEvidencia(url) {
+    const modalContent = document.getElementById('contenidoModalEvidencia');
+    const extension = url.split('.').pop().toLowerCase();
+
+    let contenido = '';
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
+        contenido = `<img src="${url}" alt="Evidencia" class="img-fluid rounded shadow">`;
+    } else if (extension === 'pdf') {
+        contenido = `<iframe src="${url}" width="100%" height="600px" style="border: none;"></iframe>`;
+    } else {
+        contenido = `<p class="text-danger">Tipo de archivo no compatible para vista previa.</p>`;
+    }
+
+    modalContent.innerHTML = contenido;
+    const modal = new bootstrap.Modal(document.getElementById('modalEvidencia'));
+    modal.show();
+}
+</script>
+{% endblock %}

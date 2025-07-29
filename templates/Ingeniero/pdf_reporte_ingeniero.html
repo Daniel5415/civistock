@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Mensual - CIVISTOCK</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 40px;
+            color: #3e494e;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header img {
+            width: 160px;
+        }
+        h1, h2, h3 {
+            color: #ee7021;
+        }
+        .resumen {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        .card {
+            flex: 1;
+            margin: 0 10px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 2px solid #ee7021;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .card h3 {
+            margin-bottom: 10px;
+        }
+        .seccion {
+            margin-top: 40px;
+        }
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+            word-wrap: break-word;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: left;
+            font-size: 11px;
+            vertical-align: top;
+        }
+        th {
+            background-color: #ee7021;
+            color: white;
+        }
+        .evidencia {
+            max-width: 240px;
+            max-height: 240px;
+            display: block;
+            margin: 10px auto;
+        }
+        footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 60px;
+            color: #888;
+        }
+        .portada {
+            text-align: center;
+            margin-top: 150px;
+        }
+        .portada img {
+            width: 240px;
+            margin-bottom: 30px;
+        }
+        .portada h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .portada p {
+            font-size: 18px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+    <!-- Portada -->
+    <div class="portada">
+        <img src="data:image/png;base64,{{ logo_portada_base64 }}" alt="Logo CIVISTOCK">
+        <h1>Reporte Mensual de Actividades</h1>
+        <p><strong>{{ usuario.nombre }}</strong></p>
+        <p>{{ mes_actual }} {{ anio_actual }}</p>
+        <p>Generado el {{ fecha_hora_actual.fecha }} {{ fecha_hora_actual.hora }}</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Encabezado general -->
+    <header>
+        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo CIVISTOCK">
+        <h2>Resumen General</h2>
+    </header>
+
+    <div class="resumen">
+        <div class="card">
+            <h3>Solicitudes Aprobadas</h3>
+            <p>{{ total_aprobados }}</p>
+        </div>
+        <div class="card">
+            <h3>Solicitudes Rechazadas</h3>
+            <p>{{ total_rechazados }}</p>
+        </div>
+        <div class="card">
+            <h3>Devoluciones</h3>
+            <p>{{ total_devoluciones }}</p>
+        </div>
+    </div>
+
+    {% if material_mas_retirado %}
+    <p><strong>Material más solicitado:</strong> {{ material_mas_retirado }}</p>
+    {% endif %}
+
+    <!-- Aprobados -->
+    <div class="seccion">
+        <h3>Solicitudes Aprobadas</h3>
+        <table>
+            <tr>
+                <th>Material</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+            </tr>
+            {% for mov in movimientos_aprobados %}
+            <tr>
+                <td>{{ mov.material.nombre }}</td>
+                <td>{{ mov.cantidad|formatear_numero }}</td>
+                <td>{{ mov.fecha_colombia.fecha }}</td>
+                <td>{{ mov.fecha_colombia.hora }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Rechazados -->
+    <div class="seccion">
+        <h3>Solicitudes Rechazadas</h3>
+        <table>
+            <tr>
+                <th>Material</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Observación</th>
+            </tr>
+            {% for mov in movimientos_rechazados %}
+            <tr>
+                <td>{{ mov.material.nombre }}</td>
+                <td>{{ mov.cantidad|formatear_numero }}</td>
+                <td>{{ mov.fecha_colombia.fecha }}</td>
+                <td>{{ mov.fecha_colombia.hora }}</td>
+                <td>{{ mov.observacion_almacenista }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+<!-- Devoluciones -->
+<div class="seccion">
+    <h3>Devoluciones</h3>
+    <table>
+        <tr>
+            <th>Material</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Motivo</th>
+            <th>Observación Almacen</th>
+            <th>Evidencia</th>
+        </tr>
+        {% set evidencias = [] %}
+        {% for mov in movimientos_devoluciones %}
+        <tr>
+            <td>{{ mov.material.nombre }}</td>
+            <td>{{ mov.cantidad|formatear_numero }}</td>
+            <td>{{ mov.fecha_colombia.fecha }}</td>
+            <td>{{ mov.fecha_colombia.hora }}</td>
+            <td>{{ mov.estado }}</td>
+            <td>{{ mov.observacion or 'N/A' }}</td>
+            <td>{{ mov.observacion_almacenista or 'N/A' }}</td>
+            <td>
+                {% if mov.evidencia_base64 %}
+                    {% set _ = evidencias.append(mov) %}
+                    Evidencia #{{ evidencias | length }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Página de evidencias -->
+{% if evidencias %}
+<div class="page-break"></div>
+<div class="seccion">
+    <h3>Evidencias de Devoluciones</h3>
+    {% for mov in evidencias %}
+        <p><strong>Evidencia #{{ loop.index }}</strong></p>
+        <img class="evidencia" src="data:image/png;base64,{{ mov.evidencia_base64 }}" alt="Evidencia #{{ loop.index }}">
+    {% endfor %}
+</div>
+{% endif %}
+
+<br><br><br>
+<div style="text-align: center; margin-top: 50px;">
+    <p style="margin-bottom: 60px;">Firma del Ingeniero</p>
+    <hr style="width: 200px; border: 1px solid #000;">
+    <p>{{ usuario.nombre }} Ingeniero civil</p>
+</div>
+
+<footer>
+    Reporte generado automáticamente por CIVISTOCK.
+</footer>
+</body>
+</html>

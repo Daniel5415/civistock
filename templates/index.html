@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>CIVISTOCK - Bienvenida</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="index-body">
+
+  <div class="overlay"></div>
+
+  <div class="index-container">
+    <div class="welcome-section active" id="welcomeSection">
+      <img src="{{ url_for('static', filename='logo_civistock.png') }}" alt="CIVISTOCK Logo" class="index-logo">
+      <h1 class="welcome-subtitle">Gestión moderna de materiales para ingeniería civil</h1>
+      <p class="welcome-description">Bienvenido al sistema de control y gestión de materiales de obra.</p>
+      <a href="{{ url_for('login') }}" class="welcome-button">
+        <i class="fas fa-sign-in-alt"></i> Ingresar al sistema
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

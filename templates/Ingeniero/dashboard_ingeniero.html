@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Ingeniero - CIVISTOCK{% endblock %}
+
+{% block content %}
+  <div class="welcome-text">
+    <h2>¡Bienvenido {{ user_name or 'Ingeniero' }}!</h2>
+    <p>
+      En este panel podrás verificar existencias antes de solicitar materiales,
+      gestionar solicitudes de retiro, consultar tu historial de retiros y
+      revisar reportes de obra. Todo pensado para facilitar tu trabajo en campo.
+    </p>
+  </div>
+
+  <!-- Tarjetas de acciones -->
+  <div class="cards-container">
+    <a href="{{ url_for('ingeniero.existencias') }}" class="dashboard-card">
+      <div class="card-icon">
+        <img src="{{ url_for('static', filename='existencias.svg') }}" alt="Icono Existencias">
+      </div>
+      <h3>Verificar Existencias</h3>
+      <p>Consulta el inventario disponible en bodega.</p>
+    </a>
+
+    <a href="{{ url_for('ingeniero.solicitar_retiro') }}" class="dashboard-card">
+      <div class="card-icon">
+        <img src="{{ url_for('static', filename='solicitar.svg') }}" alt="Icono Solicitar">
+      </div>
+      <h3>Solicitar Retiro</h3>
+      <p>Envía tu solicitud de retiro de materiales.</p>
+    </a>
+
+    <a href="{{ url_for('ingeniero.historial_retiros') }}" class="dashboard-card">
+      <div class="card-icon">
+        <img src="{{ url_for('static', filename='historial.svg') }}" alt="Icono Historial">
+      </div>
+      <h3>Historial de Retiros</h3>
+      <p>Consulta tus retiros aprobados previamente.</p>
+    </a>
+
+    <a href="{{ url_for('ingeniero.reportes') }}" class="dashboard-card">
+      <div class="card-icon">
+        <img src="{{ url_for('static', filename='reportes.svg') }}" alt="Icono Reportes">
+      </div>
+      <h3>Reportes de Obra</h3>
+      <p>Revisa reportes mensuales o de avance.</p>
+    </a>
+  </div>
+
+  <!-- Últimos movimientos -->
+  <div class="alert-panel">
+    <h4><i class="fas fa-history"></i> Últimos movimientos</h4>
+    <ul>
+      {% if ultimos_movimientos %}
+        {% for mov in ultimos_movimientos %}
+          <li>
+            <i class="fas fa-box"></i>
+            {{ mov.tipo }} de {{ mov.material.nombre }} ({{ mov.cantidad }}) el {{ fecha_y_hora_colombia(mov.fecha).fecha }} a las {{ fecha_y_hora_colombia(mov.fecha).hora }}
+            {% if mov.estado %}
+              - Estado: <strong>{{ mov.estado }}</strong>
+            {% endif %}
+          </li>
+        {% endfor %}
+      {% else %}
+        <li>No hay movimientos recientes.</li>
+      {% endif %}
+    </ul>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <!-- Cliente Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" integrity="sha384-9TnJQkXJxzCU6sVjhBu0dxZ10KXkRYQ+rb+VQKMOKFj6C3mYEvzCSk9gmbbL/c+A" crossorigin="anonymous"></script>
+  <script>
+    const socket = io();
+
+    // Escucha notificaciones dirigidas al ingeniero
+    socket.on('notificacion_ingeniero', (mensaje) => {
+      alert("🔔 Notificación: " + mensaje);
+      // Opcional: recargar automáticamente los últimos movimientos
+      // location.reload(); // Puedes quitar esta línea si no deseas recargar toda la página
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% include "toasts_alertas_almacenista.html" %}
+{% block title %}Reportes Mensuales{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">📊 Reporte mensual - {{ mes }}/{{ anio }}</h2>
+
+    <!-- Botones de navegación -->
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{{ url_for('almacenista.dashboard') }}" class="btn btn-secondary">
+            ← Volver al dashboard
+        </a>
+        <a href="{{ url_for('almacenista.revisar_devoluciones') }}" class="btn btn-info">
+            📂 Revisar Devoluciones Pendientes
+        </a>
+    </div>
+
+    <!-- Retiros Aprobados -->
+    <h4 class="mt-4 text-success">✅ Retiros Aprobados</h4>
+    {% if aprobados %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Material</th>
+                    <th>Cantidad</th>
+                    <th>Solicitado por</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in aprobados %}
+                <tr>
+                    <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+                    <td>{{ mov.material.nombre }}</td>
+                    <td>{{ mov.cantidad|formatear_numero }} {{ mov.material.unidad }}</td>
+                    <td>{{ mov.usuario.nombre }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No hay retiros aprobados este mes.</p>
+    {% endif %}
+
+    <!-- Retiros Rechazados -->
+    <h4 class="mt-5 text-warning">⚠️ Retiros Rechazados</h4>
+    {% if rechazados %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Material</th>
+                    <th>Cantidad</th>
+                    <th>Solicitado por</th>
+                    <th>Observación del Almacenista</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in rechazados %}
+                <tr>
+                    <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+                    <td>{{ mov.material.nombre }}</td>
+                    <td>{{ mov.cantidad|formatear_numero }} {{ mov.material.unidad }}</td>
+                    <td>{{ mov.usuario.nombre }}</td>
+                    <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No hay retiros rechazados este mes.</p>
+    {% endif %}
+
+    <!-- Devoluciones -->
+    <h4 class="mt-5 text-info">♻️ Devoluciones</h4>
+    {% if devoluciones %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Material</th>
+                    <th>Cantidad</th>
+                    <th>Solicitado por</th>
+                    <th>Estado</th>
+                    <th>Observación del Ingeniero</th>
+                    <th>Observación del Almacenista</th>
+                    <th>Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in devoluciones %}
+                <tr>
+                    <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+                    <td>{{ mov.material.nombre }}</td>
+                    <td>{{ mov.cantidad|formatear_numero }} {{ mov.material.unidad }}</td>
+                    <td>{{ mov.usuario.nombre }}</td>
+                    <td>{{ mov.estado }}</td>
+                    <td>{{ mov.observacion or 'Sin observación' }}</td>
+                    <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+                    <td>
+                        {% if mov.evidencia %}
+                            {% set extension = mov.evidencia.split('.')[-1].lower() %}
+                                {% set ruta = 'evidencias/' + mov.evidencia %}
+
+                            {% if extension in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                <!-- Miniatura clickeable que abre modal -->
+                                <img src="{{ url_for('static', filename=ruta) }}" class="img-thumbnail" width="80" data-bs-toggle="modal" data-bs-target="#visor{{ loop.index }}">
+
+                                <!-- Modal para imagen -->
+                                    <div class="modal fade" id="visor{{ loop.index }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Vista de Evidencia</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <img src="{{ url_for('static', filename=ruta) }}" class="img-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {% elif extension == 'pdf' %}
+                                    <!-- Ícono PDF clickeable que abre visor -->
+                                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#visor{{ loop.index }}">
+                                    Ver PDF
+                                    </button>
+
+                                <!-- Modal para PDF -->
+                                    <div class="modal fade" id="visor{{ loop.index }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-xl modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Vista de PDF</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body" style="height: 80vh;">
+                                            <iframe src="{{ url_for('static', filename=ruta) }}" width="100%" height="100%" frameborder="0"></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% else %}
+                                <span class="text-muted">Archivo no compatible</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">Sin evidencia</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No hay devoluciones registradas este mes.</p>
+    {% endif %}
+</div>
+{% endblock %}

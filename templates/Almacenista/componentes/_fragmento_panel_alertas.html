@@ -1,0 +1,32 @@
+<h4><i class="fas fa-exclamation-triangle"></i> Alertas de hoy</h4>
+<ul>
+  {% if pendientes_retiro and pendientes_retiro > 0 %}
+    <li><i class="fas fa-box"></i> Solicitudes de retiro pendientes: {{ pendientes_retiro }}</li>
+  {% else %}
+    <li><i class="fas fa-box"></i> No hay solicitudes de retiro pendientes</li>
+  {% endif %}
+
+  {% if devoluciones_pendientes %}
+      <li><i class="fas fa-undo"></i> Devoluciones pendientes: {{ devoluciones_pendientes }}</li>
+  {% else %}
+      <li><i class="fas fa-undo"></i> No hay devoluciones pendientes</li>
+  {% endif %}
+
+  {% if devoluciones_autorizadas_sin_revision > 0 %}
+      <li><i class="fas fa-check-circle"></i> Devoluciones autorizadas por revisar: {{ devoluciones_autorizadas_sin_revision }}</li>
+  {% endif %}
+
+  {% if devoluciones_en_revision and devoluciones_en_revision > 0 %}
+      <li><i class="fas fa-tools"></i> Devoluciones en revisión por ferretería: {{ devoluciones_en_revision }}</li>
+  {% else %}
+      <li><i class="fas fa-tools"></i> No hay devoluciones en revisión por ferretería</li>
+  {% endif %}
+
+  {% if stock_bajo and stock_bajo > 0 %}
+    <li><i class="fas fa-warehouse"></i> Materiales con stock bajo: {{ stock_bajo }}</li>
+  {% else %}
+    <li><i class="fas fa-warehouse"></i> No hay materiales con stock bajo</li>
+  {% endif %}
+
+  <li><i class="fas fa-clock"></i> Última actualización: {{ ultima_fecha.fecha }} a las {{ ultima_fecha.hora }}</li>
+</ul>

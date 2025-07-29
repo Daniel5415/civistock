@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Usuario{% endblock %}
+
+{% block content %}
+  <h2>Crear Nuevo Usuario</h2>
+
+  <div class="actions-bar">
+    <a href="{{ url_for('admin.listar_usuarios') }}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Volver a la Lista de Usuarios
+    </a>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" class="user-form">
+    <label>Username</label>
+    <input type="text" name="username" required>
+
+    <label>Nombre completo</label>
+    <input type="text" name="nombre" required>
+
+    <label>Contraseña</label>
+    <input type="password" name="password" required>
+
+    <label>Rol</label>
+    <select name="rol" required>
+      <option value="ADMIN">ADMIN</option>
+      <option value="ALMACENISTA">ALMACENISTA</option>
+      <option value="INGENIERO">INGENIERO</option>
+    </select>
+
+    <label>Foto (opcional)</label>
+    <input type="file" name="foto">
+
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-save"></i> Crear
+    </button>
+  </form>
+
+  <!-- FLASH MESSAGES -->
+  <div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+{% endblock %}

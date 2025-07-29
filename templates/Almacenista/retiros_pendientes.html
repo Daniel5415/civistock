@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% include "toasts_alertas_almacenista.html" %}
+{% block title %}Solicitudes de Retiro - CIVISTOCK{% endblock %}
+
+{% block content %}
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('almacenista.dashboard') }}" class="btn-volver">← Volver al dashboard</a>
+  </div>
+
+  <h2>Solicitudes de Retiro</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% set pendientes = solicitudes | selectattr('estado', 'equalto', 'PENDIENTE') | list %}
+
+  {% if pendientes %}
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Material</th>
+          <th>Cantidad</th>
+          <th>Solicitado por</th>
+          <th>Observación del ingeniero</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for solicitud in pendientes %}
+          <tr>
+            <td>{{ solicitud.fecha_local.fecha }} {{ solicitud.fecha_local.hora }}</td>
+            <td>{{ solicitud.material.nombre }}</td>
+            <td>{{ solicitud.cantidad|formatear_numero }}</td>
+            <td>{{ solicitud.solicitado_por.nombre }}</td>
+            <td>{{ solicitud.observacion or 'Sin Observación' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('almacenista.autorizar_retiro', id=solicitud.id) }}" style="margin-bottom: 5px;">
+                <textarea name="observacion_almacenista" required placeholder="Observación del almacenista"></textarea>
+                <button type="submit">Autorizar</button>
+              </form>
+
+              <form method="POST" action="{{ url_for('almacenista.rechazar_retiro', id=solicitud.id) }}">
+                <input type="hidden" name="observacion_almacenista" value="">
+                <button type="submit" onclick="return agregarObservacion(this)">Rechazar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <script>
+      // Copiar el valor de la caja de texto al segundo formulario (rechazo)
+      function agregarObservacion(button) {
+        const parentCell = button.closest('td');
+        const textarea = parentCell.querySelector('textarea');
+        const inputHidden = parentCell.querySelector('form:last-child input[name="observacion_almacenista"]');
+
+        if (textarea && inputHidden) {
+          if (!textarea.value.trim()) {
+            alert("Debes ingresar una observación para rechazar.");
+            return false;
+          }
+          inputHidden.value = textarea.value;
+          return true;
+        }
+        return false;
+      }
+    </script>
+
+  {% else %}
+    <p>No hay solicitudes pendientes.</p>
+  {% endif %}
+{% endblock %}

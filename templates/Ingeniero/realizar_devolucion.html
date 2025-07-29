@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">  
+    <h2 class="mb-4 text-center">Realizar Devolución de Material</h2>  
+    <a href="{{ url_for('ingeniero.reportes') }}" class="btn btn-outline-secondary mb-3"> ← Volver a Reportes</a>
+    <form id="formDevolucion" method="POST" enctype="multipart/form-data" action="{{ url_for('ingeniero.realizar_devolucion') }}">  
+        <div class="form-group">  
+            <label for="material">Selecciona el material:</label>  
+            <select class="form-control" id="material" name="material_id" required>  
+                <option value="">-- Selecciona --</option>  
+                {% for material in materiales %}  
+                    <option value="{{ material.id }}"
+                            data-total-retirado="{{ material.total_retirado|formatear_numero or 0 }}"
+                            data-disponible="{{ material.disponible_para_devolver|formatear_numero or 0 }}">
+                        {{ material.nombre }} (Disponibles para devolver: {{ material.disponible_para_devolver|formatear_numero or 0 }})  
+                    </option>  
+                {% endfor %}  
+            </select>  
+        </div>
+
+        <div class="form-group mt-3">  
+            <label for="cantidad">Cantidad a devolver:</label>  
+            <input type="number" class="form-control" id="cantidad" name="cantidad" step="any" min="0" required>  
+        </div>  
+
+        <div class="form-group mt-3">  
+            <label for="observacion">Observación (opcional):</label>  
+            <textarea class="form-control" id="observacion" name="observacion" rows="3" placeholder="Explica la razón si es necesario..."></textarea>  
+        </div>  
+
+        <div class="form-group mt-3">  
+            <label for="archivo">Evidencia (foto o archivo):</label>  
+            <input type="file" class="form-control-file" id="archivo" name="archivo" accept="image/*,application/pdf" required>
+            <div id="preview" class="mt-3"></div>  
+        </div>  
+
+        <button type="submit" class="btn btn-primary mt-4">Enviar solicitud de devolución</button>  
+    </form>
+</div>
+
+<!-- Modal de advertencia -->
+<div class="modal fade" id="modalAdvertencia" tabindex="-1" role="dialog" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">  
+    <div class="modal-dialog modal-dialog-centered" role="document">  
+        <div class="modal-content">  
+            <div class="modal-header bg-warning text-dark">  
+                <h5 class="modal-title" id="modalAdvertenciaLabel">Advertencia</h5>  
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>  
+            </div>  
+            <div class="modal-body">  
+                <p id="modalMensaje"></p>  
+            </div>  
+            <div class="modal-footer">  
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>  
+                <button type="button" class="btn btn-primary" id="btnConfirmarEnvio">Confirmar</button>  
+            </div>  
+        </div>  
+    </div>  
+</div>  
+
+<!-- Modal de vista previa -->
+<div class="modal fade" id="modalPreview" tabindex="-1" role="dialog" aria-labelledby="modalPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista completa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center" id="modalPreviewContent">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Inicializar Select2 en el campo de material -->
+    <script>
+        $(document).ready(function () {
+            $('#material').select2({
+                placeholder: "Busca un material...",
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function () {
+                        return "No se encontraron materiales.";
+                    }
+                }
+            });
+        });
+    </script>
+
+<!--Script vista previa y modal-->
+<script>
+document.getElementById('archivo').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('preview');
+    preview.innerHTML = '';
+
+    if (!file) return;
+
+    const fileType = file.type;
+
+    if (fileType.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.className = 'img-thumbnail';
+        img.style.maxWidth = '300px';
+        img.style.cursor = 'pointer';
+        img.alt = 'Vista previa';
+        img.onclick = () => {
+            document.getElementById('modalPreviewContent').innerHTML =
+                `<img src="${img.src}" class="img-fluid">`;
+            new bootstrap.Modal(document.getElementById('modalPreview')).show();
+        };
+        preview.appendChild(img);
+    } else if (fileType === 'application/pdf') {
+        const embed = document.createElement('embed');
+        embed.src = URL.createObjectURL(file);
+        embed.type = 'application/pdf';
+        embed.width = '100%';
+        embed.height = '400px';
+        embed.style.cursor = 'pointer';
+        embed.onclick = () => {
+            document.getElementById('modalPreviewContent').innerHTML =
+                `<embed src="${embed.src}" type="application/pdf" width="100%" height="600px">`;
+            new bootstrap.Modal(document.getElementById('modalPreview')).show();
+        };
+        preview.appendChild(embed);
+    } else {
+        preview.textContent = 'Vista previa no disponible para este tipo de archivo.';
+    }
+});
+</script>
+
+<script>
+    document.getElementById('formDevolucion').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const materialSelect = document.getElementById('material');
+        const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+        const totalRetirado = parseFloat(selectedOption.getAttribute('data-total-retirado')) || 0;
+        const disponible = parseFloat(selectedOption.getAttribute('data-disponible')) || 0;
+        const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
+        const observacion = document.getElementById('observacion').value.trim();
+        const evidencia = document.getElementById('archivo').value;
+        const form = this;
+
+        let mensaje = '';
+
+        if (cantidad <= 0) {
+            alert('⚠ Debes ingresar una cantidad válida mayor a cero.');
+            return;
+        }
+
+        if (!evidencia) {
+            alert('⚠ Debes adjuntar una evidencia para continuar.');
+            return;
+        }
+
+        if (totalRetirado === 0) {
+            if (!observacion) {
+                alert('⚠ No has realizado retiros previos. Debes justificar la devolución en el campo de observación.');
+                return;
+            } else {
+                mensaje = 'No has realizado retiros previos de este material. Esta devolución será evaluada por el almacenista. ¿Deseas continuar?';
+            }
+        } else if (cantidad > disponible) {
+            if (!observacion) {
+                alert('⚠ Debes justificar la devolución si excede el límite permitido.');
+                return;
+            } else {
+                mensaje = `Estás devolviendo más de lo disponible (${disponible}). Tu solicitud será revisada. ¿Deseas continuar?`;
+            }
+        }
+
+        if (mensaje) {
+            document.getElementById('modalMensaje').textContent = mensaje;
+            const modal = new bootstrap.Modal(document.getElementById('modalAdvertencia'));
+            modal.show();
+
+            const confirmarBtn = document.getElementById('btnConfirmarEnvio');
+            confirmarBtn.onclick = null
+            confirmarBtn.onclick = function () {
+                modal.hide();
+                form.submit();
+            };
+            
+        } else {
+            form.submit();
+        }
+    });
+</script>
+{% endblock %}

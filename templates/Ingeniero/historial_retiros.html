@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Retiros{% endblock %}
+
+{% block content %}
+
+  <!-- Botón para volver al dashboard -->
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('ingeniero.dashboard') }}" class="btn-volver">← Volver al dashboard</a>
+  </div>
+
+  <h2>Historial de Retiros</h2>
+
+  {% if movimientos %}
+    <table>
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>Cantidad</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th>Observación del almacenista</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mov in movimientos %}
+          <tr style="
+            {% if mov.tipo == 'DEVOLUCION' %}
+              background-color: #fff3cd;
+            {% elif mov.estado == 'RECHAZADO' %}
+              background-color: #f8d7da;
+            {% elif mov.estado == 'AUTORIZADO' %}
+              background-color: #d4edda;
+            {% endif %}
+          ">
+            <td>
+              {% if mov.tipo == 'DEVOLUCION' %}
+                ♻️ {{ mov.material.nombre }}
+              {% else %}
+                📤 {{ mov.material.nombre }}
+              {% endif %}
+            </td>
+            <td>{{ mov.cantidad|formatear_numero }}</td>
+            <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+            <td>
+              {% if mov.tipo == 'DEVOLUCION' %}
+                {% if mov.estado == 'AUTORIZADO' %}
+                  <span style="color: green;">♻️ Devolución aceptada</span>
+                {% elif mov.estado == 'RECHAZADO' %}
+                  <span style="color: red;">♻️ Devolución rechazada</span>
+                {% else %}
+                  <span style="color: orange;">♻️ Devolución pendiente</span>
+                {% endif %}
+              {% else %}
+                {% if mov.estado == 'PENDIENTE' %}
+                  <span style="color: orange;">📤Retiro de material pendiente</span>
+                {% elif mov.estado == 'AUTORIZADO' %}
+                  <span style="color: green;">📤Retiro de material autorizado</span>
+                {% elif mov.estado == 'RECHAZADO' %}
+                  <span style="color: red;">📤Retiro de material rechazado</span>
+                {% else %}
+                  {{ mov.estado }}
+                {% endif %}
+              {% endif %}
+            </td>
+            <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No hay retiros registrados.</p>
+  {% endif %}
+
+{% endblock %}

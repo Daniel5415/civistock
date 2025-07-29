@@ -1,0 +1,169 @@
+
+{% extends "base.html" %}
+{% include "toasts_alertas_almacenista.html" %}
+{% block title %}Gestión de Materiales{% endblock %}
+
+{% block content %}
+  <div class="welcome-text">
+    <h2>Gestión de Materiales</h2>
+    <p>Ingresa nuevos materiales y consulta el inventario existente en un solo lugar.</p>
+  </div>
+
+  <!-- BOTÓN VOLVER -->
+  <a class="volver-button" href="{{ url_for('almacenista.dashboard') }}">
+    ⬅ Regresar al menú principal
+  </a>
+
+  <!-- FORMULARIO DE INGRESO -->
+  <section class="content-container">
+    <h3>Ingresar Nuevo Material</h3>
+    <form method="POST" class="formulario">
+      <label for="codigo">Código</label>
+      <input type="text" id="codigo" name="codigo" placeholder="Código del material" required>
+
+      <label for="nombre">Nombre del material</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Nombre del material" required>
+
+      <label for="descripcion">Descripción</label>
+      <input type="text" id="descripcion" name="descripcion" placeholder="Descripción">
+      
+      <label for="unidad">Unidad</label>
+      <select id="unidad" name="unidad" required>
+        <option value="">-- Selecciona unidad --</option>
+        <option value="UND">Unidad (UND)</option>
+        <option value="KG">Kilogramo (KG)</option>
+        <option value="M3">Metro cúbico (M3)</option>
+        <option value="M2">Metro cuadrado (M2)</option>
+        <option value="ML">Metro lineal (ML)</option>
+        <option value="L">Litros (L)</option>
+      </select>
+
+      <label for="stock">Cantidad inicial</label>
+      <input type="number" id="stock" name="stock" placeholder="Cantidad inicial" step="any" min="0">
+
+      <label for="stock_minimo">Stock mínimo</label>
+      <input type="number" id="stock_minimo" name="stock_minimo" placeholder="Stock mínimo" required min="0">
+
+      <button type="submit">Agregar Material</button>
+    </form>
+  </section>
+
+  <!-- TABLA DE MATERIALES -->
+  <section class="content-container">
+    <h3>Materiales Registrados</h3>
+
+<!-- Búsqueda -->
+<div class="form-busqueda mb-3 d-flex input-clearable">
+    <input 
+        type="text" 
+        id="busquedaMateriales"
+        class="form-control me-2" 
+        placeholder="Buscar por nombre, código, descripción o unidad..."
+    >
+    <button type="button" class="clear-btn" id="clearSearch">&times;</button>
+</div>
+
+<script>
+    const inputBusqueda = document.getElementById('busquedaMateriales');
+    const clearBtn = document.getElementById('clearSearch');
+
+    function filtrarFilas() {
+        const filtro = inputBusqueda.value.toLowerCase();
+        const filas = document.querySelectorAll('table tbody tr');
+
+        filas.forEach(fila => {
+            const textoFila = fila.textContent.toLowerCase();
+            fila.style.display = textoFila.includes(filtro) ? '' : 'none';
+        });
+
+        // Mostrar u ocultar el botón de limpiar
+        clearBtn.style.display = filtro ? 'block' : 'none';
+    }
+
+    inputBusqueda.addEventListener('input', filtrarFilas);
+
+    clearBtn.addEventListener('click', function () {
+        inputBusqueda.value = '';
+        filtrarFilas(); // Reinicia la búsqueda
+    });
+</script>
+
+    {% if materiales %}
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Unidad</th>
+            <th>Stock</th>
+            <th>Stock mínimo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for material in materiales %}
+            <tr>
+              <td>{{ material.codigo }}</td>
+              <td>{{ material.nombre }}</td>
+              <td>{{ material.descripcion }}</td>
+              <td>{{ material.unidad }}</td>
+              <td>{{ material.stock|formatear_numero }}</td>
+              <td>{{ material.stock_minimo }}</td>
+              <td>
+                <div class="action-buttons">
+                  <a href="{{ url_for('almacenista.editar_material', id=material.id) }}" class="icon-button" title="Editar">
+                    <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  <button type="button" class="icon-button" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-id="{{ material.id }}">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No hay materiales registrados aún.</p>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block modals %}
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-white">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar este material? Esta acción no se puede deshacer.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form id="deleteForm" method="POST" data-base-url="{{ url_for('almacenista.eliminar_material', id=0)[:-1] }}">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+      confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var materialId = button.getAttribute('data-id');
+        var form = confirmDeleteModal.querySelector('#deleteForm');
+        var baseUrl = form.getAttribute('data-base-url');
+        form.action = baseUrl + materialId;
+      });
+    });
+  </script>
+{% endblock %}

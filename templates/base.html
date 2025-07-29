@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}CIVISTOCK{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- audios -->
+    <audio id="audio-alerta-stock" src="{{ url_for('static', filename='alerta.mp3') }}"></audio>
+    <audio id="audio-notificacion" src="{{ url_for('static', filename='notificacion.mp3') }}"></audio>
+
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-white bg-white px-3">
+        <a class="navbar-brand" href="{{ url_for(user_role.lower() + '.dashboard') }}">
+            <img src="{{ url_for('static', filename='civistockresponsive.png') }}" alt="Logo" height="50">
+        </a>
+        <button class="navbar-toggler" type="button" id="menuToggle">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if user_role == 'almacenista' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('almacenista.existencias') }}">Existencias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('almacenista.retiros') }}">Retiros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('almacenista.reportes') }}">Reportes</a></li>
+                {% elif user_role == 'ingeniero' %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ingeniero.solicitar_retiro') }}">Solicitar Retiro</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ingeniero.realizar_devolucion') }}">Devolver Material</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('ingeniero.historial_movimientos') }}">Historial</a></li>
+                {% endif %}
+            </ul>
+
+<!-- Notificaciones -->
+<ul class="navbar-nav">
+    <li class="nav-item dropdown">
+        <a class="nav-link position-relative" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-bell"></i>
+            {% if notificaciones_no_leidas %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-count">
+                    {{ notificaciones_no_leidas|length }}
+                </span>
+            {% endif %}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown" style="max-height: 300px; overflow-y: auto;">
+            {% if notificaciones %}
+                {% for n in notificaciones %}
+                    <li class="dropdown-item {% if not n.leida %}fw-bold{% endif %}">
+                        {{ n.mensaje }}<br>
+                        <small class="text-muted">{{ n.fecha.strftime('%d/%m/%Y %I:%M %p') }}</small>
+                    </li>
+                {% endfor %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="POST" 
+                        action="{% if session.get('rol') == 'almacenista' %}{{ url_for('almacenista.vaciar_notificaciones') }}{% else %}{{ url_for('ingeniero.vaciar_notificaciones') }}{% endif %}">
+                      <button type="submit" class="dropdown-item text-danger">🗑️ Vaciar</button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="dropdown-item text-muted">Sin notificaciones</li>
+            {% endif %}
+        </ul>
+    </li>
+</ul>
+
+
+                <!-- Perfil -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                        <img src="{{ url_for('static', filename='uploads/' + (user_photo or 'default.jpg')) }}" alt="Foto" width="30" height="30" class="rounded-circle me-1">
+                        {{ user_name }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container my-4">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Modal confirmación genérico -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de continuar?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" id="confirmBtn" class="btn btn-primary">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap y scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- SocketIO -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+
+{% block scripts %}
+<!-- Al final del body, justo antes del cierre -->
+<script>
+function mostrarToast(mensaje, opciones = {}) {
+  const container = document.querySelector('.toast-container');
+  if (!container) return;
+
+  const tipo = opciones.tipo || 'notificacion';
+  const color = tipo === 'alerta' ? 'text-bg-warning' : 'text-bg-primary';
+  const autodestruir = tipo !== 'alerta';
+
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center ${color} border-0 show`;
+  toast.role = 'alert';
+  toast.ariaLive = 'assertive';
+  toast.ariaAtomic = 'true';
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        ${mensaje}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  `;
+  container.appendChild(toast);
+
+  if (tipo === 'alerta') {
+    const audio = document.getElementById('audio-alerta-stock');
+    if (audio) audio.play();
+  } else if (tipo === 'notificacion') {
+    const audio = document.getElementById('audio-notificacion');
+    if (audio) audio.play();
+  }
+
+  if (autodestruir) {
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.classList.add('hide');
+      setTimeout(() => toast.remove(), 500);
+    }, 5000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const socket = io(location.origin);
+  window.socket = socket;
+
+  socket.on('connect', () => {
+    console.log('🔌 Conectado a Socket.IO');
+  });
+
+  socket.on('nueva_notificacion', function(data) {
+    if (data.tipo_usuario !== '{{ user_role|lower }}') return;
+
+    const notifMenu = document.querySelector('#notifDropdown + .dropdown-menu');
+    const notifBadge = document.querySelector('.notif-count');
+    const notifButton = document.getElementById('notifDropdown');
+
+    const li = document.createElement('li');
+    li.className = 'dropdown-item fw-bold';
+    li.innerHTML = `${data.mensaje}<br><small class="text-muted">${data.fecha}</small>`;
+    if (notifMenu) notifMenu.prepend(li);
+
+    let count = parseInt(notifBadge?.textContent || '0') + 1;
+    if (notifBadge) {
+      notifBadge.textContent = count;
+      notifBadge.style.display = 'inline-block';
+    } else {
+      const badge = document.createElement('span');
+      badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-count';
+      badge.textContent = count;
+      notifButton.appendChild(badge);
+    }
+
+    mostrarToast(data.mensaje, { tipo: 'notificacion' });
+  });
+
+  socket.on('actualizar-tablas', () => {
+    console.log('📥 Evento recibido en el dashboard: actualizar-tablas');
+    fetch('/almacenista/fragmento-panel-alertas')
+      .then(response => response.text())
+      .then(html => {
+        console.log("🔁 HTML recibido:", html);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const nuevoPanel = doc.querySelector('#panel-alertas');
+        const actualPanel = document.querySelector('#panel-alertas');
+        if (nuevoPanel && actualPanel) {
+          actualPanel.innerHTML = nuevoPanel.innerHTML;
+        }
+      });
+  });
+
+  const notifButton = document.getElementById('notifDropdown');
+  if (notifButton) {
+    notifButton.addEventListener('click', function () {
+      fetch('/marcar-notificaciones-leidas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).then(response => {
+        if (response.ok) {
+          const notifCount = document.querySelector('.notif-count');
+          if (notifCount) notifCount.style.display = 'none';
+          document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('fw-bold');
+          });
+        }
+      });
+    });
+  }
+
+  {% if materiales_bajo_stock %}
+    {% for m in materiales_bajo_stock %}
+      mostrarToast("⚠️ Stock bajo: {{ m.nombre|escape }} ({{ m.stock }})", { tipo: 'alerta' });
+    {% endfor %}
+  {% endif %}
+});
+</script>
+
+<!-- Contenedor de Toasts -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;"></div>
+{% endblock %}

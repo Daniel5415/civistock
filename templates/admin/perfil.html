@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil del Administrador{% endblock %}
+
+{% block content %}
+  <h2>Perfil del Administrador</h2>
+
+  <div class="actions-bar">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Volver al Dashboard
+    </a>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" class="user-form">
+    <label>Username</label>
+    <input type="text" name="username" value="{{ usuario.username }}" readonly required>
+
+    <label>Nombre completo</label>
+    <input type="text" name="nombre" value="{{ usuario.nombre }}" required>
+
+    <label>Contraseña (deja en blanco si no deseas cambiarla)</label>
+    <input type="text" name="password">
+
+    <label>Foto actual</label><br>
+    {% if usuario.foto %}
+      <img src="{{ url_for('static', filename='uploads/' ~ usuario.foto) }}" alt="Foto de {{ usuario.nombre }}" width="100">
+    {% else %}
+      <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="Foto por defecto" width="100">
+    {% endif %}
+
+    <label>Actualizar foto (opcional)</label>
+    <input type="file" name="foto">
+
+    <button type="submit" class="btn btn-success">
+      <i class="fas fa-save"></i> Actualizar
+    </button>
+  </form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% include "toasts_alertas_almacenista.html" %}
+{% block title %}Editar Material{% endblock %}
+
+{% block content %}
+  <div class="welcome-text">
+    <h2>Editar Material</h2>
+    <p>Actualiza la información de este material registrado en el inventario.</p>
+  </div>
+
+  <!-- BOTÓN VOLVER -->
+  <a class="volver-button" href="{{ url_for('almacenista.materiales') }}">
+    ⬅ Volver a listado de materiales
+  </a>
+
+  <!-- FORMULARIO DE EDICIÓN -->
+  <section class="content-container">
+    <h3>Formulario de Edición</h3>
+    <form method="POST" class="formulario">
+      <label for="codigo">Código</label>
+      <input type="text" id="codigo" name="codigo" value="{{ material.codigo }}" required>
+
+      <label for="nombre">Nombre del material</label>
+      <input type="text" id="nombre" name="nombre" value="{{ material.nombre }}" required>
+
+      <label for="descripcion">Descripción</label>
+      <input type="text" id="descripcion" name="descripcion" value="{{ material.descripcion }}">
+
+      <label for="stock_minimo">Stock mínimo</label>
+      <input type="number" id="stock_minimo" name="stock_minimo" value="{{ material.stock_minimo }}" required min="0">
+
+      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+  </section>
+{% endblock %}

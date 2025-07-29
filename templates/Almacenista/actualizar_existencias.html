@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% include "toasts_alertas_almacenista.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <a href="{{ url_for('almacenista.dashboard') }}" class="btn btn-secondary mb-3">← Volver al dashboard</a>
+
+    <h2 class="text-center mb-4">Actualizar Existencias</h2>
+    
+<!-- Búsqueda -->
+<div class="form-busqueda mb-3 d-flex input-clearable">
+    <input 
+        type="text" 
+        id="busquedaMateriales"
+        class="form-control me-2" 
+        placeholder="Buscar por nombre, código, descripción o unidad..."
+    >
+    <button type="button" class="clear-btn" id="clearSearch">&times;</button>
+</div>
+
+<script>
+    const inputBusqueda = document.getElementById('busquedaMateriales');
+    const clearBtn = document.getElementById('clearSearch');
+
+    function filtrarFilas() {
+        const filtro = inputBusqueda.value.toLowerCase();
+        const filas = document.querySelectorAll('table tbody tr');
+
+        filas.forEach(fila => {
+            const textoFila = fila.textContent.toLowerCase();
+            fila.style.display = textoFila.includes(filtro) ? '' : 'none';
+        });
+
+        // Mostrar u ocultar el botón de limpiar
+        clearBtn.style.display = filtro ? 'block' : 'none';
+    }
+
+    inputBusqueda.addEventListener('input', filtrarFilas);
+
+    clearBtn.addEventListener('click', function () {
+        inputBusqueda.value = '';
+        filtrarFilas(); // Reinicia la búsqueda
+    });
+</script>
+
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Unidad</th>
+                <th>Stock Actual</th>
+                <th>Nuevo Stock</th>
+                <th>Actualizar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for material in materiales %}
+            <tr>
+                <td>{{ material.codigo }}</td>
+                <td>{{ material.nombre }}</td>
+                <td>{{ material.descripcion }}</td>
+                <td>{{ material.unidad }}</td>
+                <td>{{ material.stock|formatear_numero }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('almacenista.actualizar_existencia_individual', material_id=material.id) }}" class="form-inline">
+                        <input type="number" name="nuevo_stock" value="{{ material.stock|formatear_numero }}" step="any" class="form-control" style="width: 100px;" required>
+                </td>
+                <td>
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

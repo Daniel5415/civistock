@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Existencias - Ingeniero{% endblock %}
+
+{% block content %}
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <a href="{{ url_for('ingeniero.dashboard') }}" class="btn-volver">← Volver al dashboard</a>
+    <input type="text" id="busqueda" placeholder="Buscar material..." style="padding: 5px; width: 200px;">
+  </div>
+
+  <h2>Inventario disponible</h2>
+
+  {% if materiales %}
+    <table id="tabla-materiales">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Unidad</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for material in materiales %}
+          <tr>
+            <td>{{ material.codigo }}</td>
+            <td>{{ material.nombre }}</td>
+            <td>{{ material.descripcion }}</td>
+            <td>{{ material.unidad }}</td>
+            <td>{{ material.stock|formatear_numero }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No hay materiales registrados.</p>
+  {% endif %}
+
+  <script>
+    // Filtro para la tabla
+    document.getElementById("busqueda").addEventListener("keyup", function() {
+      let filtro = this.value.toLowerCase();
+      let filas = document.querySelectorAll("#tabla-materiales tbody tr");
+      filas.forEach(function(fila) {
+        let texto = fila.innerText.toLowerCase();
+        fila.style.display = texto.includes(filtro) ? "" : "none";
+      });
+    });
+  </script>
+{% endblock %}
