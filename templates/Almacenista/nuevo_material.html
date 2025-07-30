@@ -153,15 +153,19 @@
 {% endblock %}
 
 {% block scripts %}
-{{ super() }}
+  {{ super() }}
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+      const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+
       confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var materialId = button.getAttribute('data-id');
-        var form = confirmDeleteModal.querySelector('#deleteForm');
-        var baseUrl = form.getAttribute('data-base-url');
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        const materialId = button.getAttribute('data-id');
+        const form = confirmDeleteModal.querySelector('#deleteForm');
+        const baseUrl = form.getAttribute('data-base-url');
+
         form.action = baseUrl + materialId;
       });
     });
