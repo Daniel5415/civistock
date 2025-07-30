@@ -410,7 +410,7 @@ def existencias():
     sync_user_session()
 
     # Materiales en stock general
-    materiales = Material.query.all()
+    materiales = Material.query.filter_by(activo=True).all()
 
     # Materiales devueltos visibles en existencias y que no están marcados como "en revisión en ferretería"
     materiales_en_devolucion = Movimiento.query.filter(
