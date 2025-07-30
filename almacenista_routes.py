@@ -84,7 +84,7 @@ def materiales():
             (Material.activo == True)
         ).all()
     else:
-        materiales = Material.query.filter(activo=True).all()
+        materiales = Material.query.filter(Material.activo == True).all()
 
     return render_template('Almacenista/nuevo_material.html', materiales=materiales)
 
