@@ -53,8 +53,10 @@ def emitir_notificacion(tipo_usuario, mensaje, usuario_id=None):
 
 # detectar materiales con stock bajo para el TOAST
 def obtener_materiales_bajo_stock():
-    return Material.query.filter(Material.stock <= Material.stock_minimo).all()
-
+    return Material.query.filter(
+        Material.stock <= Material.stock_minimo,
+        Material.activo == True
+    ).all()
 
 #logica de conteo para las alertas del panel del almacenista
 # utils.py

@@ -51,9 +51,21 @@ def dashboard():
     sync_user_session()
     usuario = User.query.filter_by(username=session.get('user')).first()
 
-    ultimos_movimientos = Movimiento.query.filter_by(solicitado_por_id=usuario.id).order_by(Movimiento.fecha.desc()).limit(5).all()
+    ultimos_movimientos = (
+        Movimiento.query
+        .join(Material)
+        .filter(Movimiento.solicitado_por_id == usuario.id, Material.activo == True)
+        .order_by(Movimiento.fecha.desc())
+        .limit(5)
+        .all()
+    )
 
-    return render_template('Ingeniero/dashboard_ingeniero.html', ultimos_movimientos=ultimos_movimientos , fecha_y_hora_colombia=fecha_y_hora_colombia)
+    return render_template(
+        'Ingeniero/dashboard_ingeniero.html',
+        ultimos_movimientos=ultimos_movimientos,
+        fecha_y_hora_colombia=fecha_y_hora_colombia
+    )
+
 
 # -----------------------------
 # Ver existencias
@@ -62,7 +74,7 @@ def dashboard():
 @ingeniero_required
 def existencias():
     sync_user_session()
-    materiales = Material.query.all()
+    materiales = Material.query.filter_by(activo=True).all()
     return render_template('Ingeniero/existencias_ingeniero.html', materiales=materiales)
 
 # -----------------------------
@@ -72,7 +84,7 @@ def existencias():
 @ingeniero_required
 def solicitar_retiro():
     sync_user_session()
-    materiales = Material.query.all()
+    materiales = Material.query.filter_by(activo=True).all()
 
     if request.method == 'POST':
         material_id = request.form.get('material_id')
@@ -108,7 +120,6 @@ def solicitar_retiro():
                 mensaje += f"\n📝 Observación: {observacion}"
             emitir_notificacion(tipo_usuario='almacenista', usuario_id=almacenista.id, mensaje=mensaje)
 
-
         flash('✅ Solicitud de retiro enviada.', 'success')
         return redirect(url_for('ingeniero.solicitar_retiro'))
 
@@ -127,9 +138,16 @@ def historial_retiros():
         flash('Usuario no encontrado.', 'error')
         return redirect(url_for('ingeniero.dashboard'))
 
-    movimientos = Movimiento.query.filter_by(
-        solicitado_por_id=usuario.id
-    ).order_by(Movimiento.fecha.desc()).all()
+    movimientos = (
+        Movimiento.query
+        .join(Material)  # Unimos con la tabla Material
+        .filter(
+            Movimiento.solicitado_por_id == usuario.id,
+            Material.activo == True  # Solo materiales activos
+        )
+        .order_by(Movimiento.fecha.desc())
+        .all()
+    )
 
     for mov in movimientos:
         mov.fecha_local = fecha_y_hora_colombia(mov.fecha)
@@ -149,22 +167,43 @@ def reportes():
         flash('Usuario no encontrado.', 'error')
         return redirect(url_for('ingeniero.dashboard'))
 
-    aprobados = Movimiento.query.filter_by(
-        solicitado_por_id=usuario.id,
-        tipo='SALIDA',
-        estado='AUTORIZADO'
-    ).order_by(Movimiento.fecha.desc()).all()
+    aprobados = (
+        Movimiento.query
+        .join(Material)
+        .filter(
+            Movimiento.solicitado_por_id == usuario.id,
+            Movimiento.tipo == 'SALIDA',
+            Movimiento.estado == 'AUTORIZADO',
+            Material.activo == True
+        )
+        .order_by(Movimiento.fecha.desc())
+        .all()
+    )
 
-    rechazados = Movimiento.query.filter_by(
-        solicitado_por_id=usuario.id,
-        tipo='SALIDA',
-        estado='RECHAZADO'
-    ).order_by(Movimiento.fecha.desc()).all()
+    rechazados = (
+        Movimiento.query
+        .join(Material)
+        .filter(
+            Movimiento.solicitado_por_id == usuario.id,
+            Movimiento.tipo == 'SALIDA',
+            Movimiento.estado == 'RECHAZADO',
+            Material.activo == True
+        )
+        .order_by(Movimiento.fecha.desc())
+        .all()
+    )
 
-    devoluciones = Movimiento.query.filter_by(
-        solicitado_por_id=usuario.id,
-        tipo='DEVOLUCION'
-    ).order_by(Movimiento.fecha.desc()).all()
+    devoluciones = (
+        Movimiento.query
+        .join(Material)
+        .filter(
+            Movimiento.solicitado_por_id == usuario.id,
+            Movimiento.tipo == 'DEVOLUCION',
+            Material.activo == True
+        )
+        .order_by(Movimiento.fecha.desc())
+        .all()
+    )
 
     for mov in aprobados + rechazados + devoluciones:
         mov.fecha_local = fecha_y_hora_colombia(mov.fecha)
@@ -210,10 +249,17 @@ def historial_devoluciones():
         flash('Usuario no encontrado.', 'error')
         return redirect(url_for('ingeniero.dashboard'))
 
-    devoluciones = Movimiento.query.filter_by(
-        solicitado_por_id=usuario.id,
-        tipo='DEVOLUCION'
-    ).order_by(Movimiento.fecha.desc()).all()
+    devoluciones = (
+        Movimiento.query
+        .join(Material)
+        .filter(
+            Movimiento.solicitado_por_id == usuario.id,
+            Movimiento.tipo == 'DEVOLUCION',
+            Material.activo == True
+        )
+        .order_by(Movimiento.fecha.desc())
+        .all()
+    )
 
     for dev in devoluciones:
         dev.fecha_local = fecha_y_hora_colombia(dev.fecha)
@@ -228,7 +274,7 @@ def realizar_devolucion():
     usuario_id = session.get('user_id')
 
     if request.method == 'GET':
-        materiales = Material.query.all()
+        materiales = Material.query.filter_by(activo=True).all()  # ✅ Solo materiales activos
 
         for material in materiales:
             total_retirado = db.session.query(func.sum(Movimiento.cantidad)).filter(
@@ -255,8 +301,8 @@ def realizar_devolucion():
             material.total_retirado = total_retirado
             material.disponible_para_devolver = max(total_retirado - (total_devuelto + total_dev_pendientes), 0)
 
-        return render_template('Ingeniero/realizar_devolucion.html', materiales=materiales)
-
+        return render_template('Ingeniero/realizar_devolucion.html', materiales=materiales)}
+    
     # POST
     material_id = request.form.get('material_id')
     try:
@@ -336,9 +382,14 @@ def realizar_devolucion():
 # -----------------------------
 # Generar reporte en pdf
 # -----------------------------
+ACTIVAR_PDF_INGENIERO = True  # cambiar a False cuando quiera ocultarse
+
 @ingeniero_bp.route('/generar-pdf')
 @ingeniero_required
 def generar_pdf():
+    if not ACTIVAR_PDF_INGENIERO:
+        return "Esta funcionalidad está temporalmente inactiva.", 404
+
     from datetime import datetime
     from collections import Counter
     import base64

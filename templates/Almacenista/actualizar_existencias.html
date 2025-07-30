@@ -52,6 +52,7 @@
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Unidad</th>
+                <th>Stock Mínimo</th>
                 <th>Stock Actual</th>
                 <th>Nuevo Stock</th>
                 <th>Actualizar</th>
@@ -64,6 +65,7 @@
                 <td>{{ material.nombre }}</td>
                 <td>{{ material.descripcion }}</td>
                 <td>{{ material.unidad }}</td>
+                <td>{{ material.stock_minimo|formatear_numero }}</td>
                 <td>{{ material.stock|formatear_numero }}</td>
                 <td>
                     <form method="POST" action="{{ url_for('almacenista.actualizar_existencia_individual', material_id=material.id) }}" class="form-inline">
