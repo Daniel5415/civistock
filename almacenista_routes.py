@@ -6,7 +6,7 @@ from models import db, Material, User, Movimiento, Notificacion
 from utils import fecha_y_hora_colombia, emitir_notificacion, obtener_alertas_almacenista
 from sqlalchemy import and_, not_, or_
 from sqlalchemy.exc import IntegrityError
-
+import os
 almacenista_bp = Blueprint('almacenista', __name__, url_prefix='/almacenista')
 
 # -----------------------------
@@ -587,3 +587,16 @@ def fragmento_panel_alertas():
     return render_template('Almacenista/componentes/_fragmento_panel_alertas.html', **datos)
 
 
+
+@almacenista_bp.route('/eliminar-evidencias-temporal')
+def eliminar_evidencias_temporal():
+    carpeta = os.path.join('static', 'evidencias')
+    if os.path.exists(carpeta):
+        for archivo in os.listdir(carpeta):
+            ruta_archivo = os.path.join(carpeta, archivo)
+            try:
+                os.remove(ruta_archivo)
+            except Exception as e:
+                print(f"Error eliminando {archivo}: {e}")
+    flash('Evidencias eliminadas correctamente.', 'success')
+    return redirect(url_for('almacenista.dashboard'))
