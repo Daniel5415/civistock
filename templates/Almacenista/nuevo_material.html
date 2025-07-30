@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% include "toasts_alertas_almacenista.html" %}
 {% block title %}Gestión de Materiales{% endblock %}
@@ -52,41 +51,39 @@
   <section class="content-container">
     <h3>Materiales Registrados</h3>
 
-<!-- Búsqueda -->
-<div class="form-busqueda mb-3 d-flex input-clearable">
-    <input 
-        type="text" 
-        id="busquedaMateriales"
-        class="form-control me-2" 
-        placeholder="Buscar por nombre, código, descripción o unidad..."
-    >
-    <button type="button" class="clear-btn" id="clearSearch">&times;</button>
-</div>
+    <div class="form-busqueda mb-3 d-flex input-clearable">
+      <input 
+          type="text" 
+          id="busquedaMateriales"
+          class="form-control me-2" 
+          placeholder="Buscar por nombre, código, descripción o unidad..."
+      >
+      <button type="button" class="clear-btn" id="clearSearch">&times;</button>
+    </div>
 
-<script>
-    const inputBusqueda = document.getElementById('busquedaMateriales');
-    const clearBtn = document.getElementById('clearSearch');
+    <script>
+      const inputBusqueda = document.getElementById('busquedaMateriales');
+      const clearBtn = document.getElementById('clearSearch');
 
-    function filtrarFilas() {
+      function filtrarFilas() {
         const filtro = inputBusqueda.value.toLowerCase();
         const filas = document.querySelectorAll('table tbody tr');
 
         filas.forEach(fila => {
-            const textoFila = fila.textContent.toLowerCase();
-            fila.style.display = textoFila.includes(filtro) ? '' : 'none';
+          const textoFila = fila.textContent.toLowerCase();
+          fila.style.display = textoFila.includes(filtro) ? '' : 'none';
         });
 
-        // Mostrar u ocultar el botón de limpiar
         clearBtn.style.display = filtro ? 'block' : 'none';
-    }
+      }
 
-    inputBusqueda.addEventListener('input', filtrarFilas);
+      inputBusqueda.addEventListener('input', filtrarFilas);
 
-    clearBtn.addEventListener('click', function () {
+      clearBtn.addEventListener('click', function () {
         inputBusqueda.value = '';
-        filtrarFilas(); // Reinicia la búsqueda
-    });
-</script>
+        filtrarFilas();
+      });
+    </script>
 
     {% if materiales %}
       <table>
@@ -127,29 +124,29 @@
     {% else %}
       <p>No hay materiales registrados aún.</p>
     {% endif %}
-  </section>
-{% endblock %}
 
-{% block modals %}
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-warning text-white">
-          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          ¿Estás seguro de que deseas eliminar este material? Esta acción no se puede deshacer.
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <form id="deleteForm" method="POST" data-base-url="{{ url_for('almacenista.eliminar_material', id=0)[:-1] }}">
-            <button type="submit" class="btn btn-danger">Eliminar</button>
-          </form>
+    <!-- 🔽 MODAL directamente aquí -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de que deseas eliminar este material? Esta acción no se puede deshacer.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <form id="deleteForm" method="POST" data-base-url="{{ url_for('almacenista.eliminar_material', id=0)[:-1] }}">
+              <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+  </section>
 {% endblock %}
 
 {% block scripts %}
