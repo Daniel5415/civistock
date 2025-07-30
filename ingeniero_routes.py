@@ -259,7 +259,11 @@ def realizar_devolucion():
 
     # POST
     material_id = request.form.get('material_id')
-    cantidad = float(request.form['cantidad'])
+    try:
+        cantidad = float(request.form.get('cantidad', 0).strip())
+    except ValueError:
+        flash('⚠ Cantidad inválida.', 'error')
+        return redirect(request.referrer or url_for('ingeniero.realizar_devolucion'))
     observacion = request.form.get('observacion', '').strip()
     evidencia = request.files.get('archivo')
     usuario_id = session.get('user_id')
@@ -321,7 +325,11 @@ def realizar_devolucion():
         )
         if observacion:
             mensaje += f"\n📝 Observación: {observacion}"
-        emitir_notificacion(tipo_usuario='almacenista', usuario_id=almacenista.id, mensaje=mensaje)
+        try:
+            emitir_notificacion(tipo_usuario='almacenista', usuario_id=almacenista.id, mensaje=mensaje)
+
+        except Exception as e:
+            print(f"Error al emitir notificación: {e}")
 
     flash('✅ Solicitud de devolución enviada correctamente.', 'success')
     return redirect(url_for('ingeniero.reportes'))

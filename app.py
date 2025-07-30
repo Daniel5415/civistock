@@ -229,9 +229,14 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('home'))
+# -----------------------------
+
+# Crear carpeta evidencias si no existe
+os.makedirs('evidencias', exist_ok=True)
 
 # -----------------------------
 # INICIAR APP CON SOCKETIO
 # -----------------------------
 if __name__ == '__main__':
     socketio.run(app, debug=False)
+
