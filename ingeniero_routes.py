@@ -301,7 +301,7 @@ def realizar_devolucion():
             material.total_retirado = total_retirado
             material.disponible_para_devolver = max(total_retirado - (total_devuelto + total_dev_pendientes), 0)
 
-        return render_template('Ingeniero/realizar_devolucion.html', materiales=materiales)}
+        return render_template('Ingeniero/realizar_devolucion.html', materiales=materiales)
     
     # POST
     material_id = request.form.get('material_id')
