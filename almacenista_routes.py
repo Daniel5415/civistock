@@ -71,7 +71,18 @@ def materiales():
             flash('✅ Material creado exitosamente.', 'success')
         except IntegrityError:
             db.session.rollback()
-            flash(f'❌ Ya existe un material con el código {codigo}.', 'error')
+            existente = Material.query.filter_by(codigo=codigo, activo=False).first()
+            if existente:
+                existente.nombre = nombre
+                existente.descripcion = descripcion
+                existente.unidad = unidad
+                existente.stock = float(stock)
+                existente.stock_minimo = int(stock_minimo)
+                existente.activo = True
+                db.session.commit()
+                flash(f'✅ Material creado exitosamente.', 'success')
+            else:
+                flash(f'❌ Ya existe un material con el código {codigo}.', 'error')
 
         return redirect(url_for('almacenista.materiales'))
 
