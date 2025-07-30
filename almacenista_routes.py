@@ -78,12 +78,13 @@ def materiales():
     search_query = request.args.get('q')
     if search_query:
         materiales = Material.query.filter(
-            (Material.codigo.ilike(f'%{search_query}%')) |
+            ((Material.codigo.ilike(f'%{search_query}%')) |
             (Material.nombre.ilike(f'%{search_query}%')) |
-            (Material.descripcion.ilike(f'%{search_query}%'))
+            (Material.descripcion.ilike(f'%{search_query}%'))) &
+            (Material.activo == True)
         ).all()
     else:
-        materiales = Material.query.all()
+        materiales = Material.query.filter(activo=True).all()
 
     return render_template('Almacenista/nuevo_material.html', materiales=materiales)
 
@@ -116,7 +117,7 @@ def editar_material(id):
 def eliminar_material(id):
     sync_user_session()
     material = Material.query.get_or_404(id)
-    db.session.delete(material)
+    material.activo = False
     db.session.commit()
     flash('❌ Material eliminado exitosamente.', 'warning')
     return redirect(url_for('almacenista.materiales'))

@@ -138,7 +138,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <form id="deleteForm" method="POST" data-base-url="{{ url_for('almacenista.eliminar_material', id=0)[:-1] }}">
+            <form id="deleteForm" method="POST" data-base-url="{{ url_for('almacenista.eliminar_material', id=0).rsplit('/', 1)[0] }}/">
               <button type="submit" class="btn btn-danger">Eliminar</button>
             </form>
           </div>

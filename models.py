@@ -28,6 +28,7 @@ class Material(db.Model):
     stock_minimo = db.Column(db.Integer, default=0)
     unidad = db.Column(db.String(50))
     en_devolucion = db.Column(db.Float, default=0)
+    activo = db.Column(db.Boolean, default=True)
 
     # Relación con movimientos
     movimientos = db.relationship('Movimiento', backref='material', lazy=True)
