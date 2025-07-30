@@ -6,6 +6,9 @@ from flask_migrate import Migrate
 from utils import fecha_y_hora_colombia, formatear_numero,configurar_socketio, obtener_materiales_bajo_stock, obtener_alertas_almacenista
 from werkzeug.exceptions import RequestEntityTooLarge
 from sqlalchemy.exc import IntegrityError
+import eventlet
+eventlet.monkey_patch()
+
 # -----------------------------
 # IMPORTAR MODELOS Y db
 # -----------------------------
