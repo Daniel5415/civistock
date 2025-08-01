@@ -374,6 +374,76 @@ body.login-mode .index-container {
   border-color: #343a40 !important;
   color: white !important;
 }
+/* ------- Mejora responsive para panel de ayuda ------- */
+
+/* H1 escalable y que no se desborde */
+.ayuda-container h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  word-break: break-word;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+/* Asegura padding adaptable */
+.ayuda-container {
+  padding: clamp(16px, 4vw, 40px);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ajustes generales para que no haga overflow */
+.ayuda-container,
+.accordion-button {
+  overflow-wrap: break-word;
+}
+
+/* Aumentar espacio interno en móviles */
+@media (max-width: 900px) {
+  .ayuda-container {
+    margin: 20px 10px;
+    padding: 20px 16px;
+  }
+
+  .ayuda-section h2 {
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+  }
+
+  .accordion-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .ayuda-container h1 {
+    text-align: center;
+  }
+
+  /* Asegurar que el botón de volver no se desborde */
+  .btn-volver-panel {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    padding: 10px 14px;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Si el título sigue muy largo, permitir que haya salto suave */
+.ayuda-container h1 {
+  hyphens: auto;
+}
+
+/* Acordeón: que no cause scroll horizontal */
+.accordion {
+  width: 100%;
+}
+
+/* Espaciado interior de items en móvil para claridad */
+@media (max-width: 600px) {
+  .accordion-body {
+    padding: 1rem;
+  }
+}
 
 /* ----------------------------------- */
 
