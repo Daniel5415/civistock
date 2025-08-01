@@ -894,9 +894,6 @@ body.login-mode .index-container {
 /* --------- EDITAR USUARIO ------- */
 /* ----------------------------------- */
 
-h2 {
-  margin-left: 156px;
-}
 
 .edit-user-form {
   display: grid;
