@@ -3,11 +3,16 @@
 {% block title %}Solicitar Retiro{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>📦 Solicitar Retiro de Material</h2>
-        <a href="{{ url_for('ingeniero.dashboard') }}" class="btn btn-secondary">← Volver al dasboard</a>
+<div >
+    <div class=" text">
+                <h2 class="mb-4 text-center"><i class="fas fa-box-open me-2"></i> Solicitar Retiro de Material</h2>
     </div>
+
+<div class="mb-4 d-flex justify-content-start">
+  <a href="{{ url_for('ingeniero.dashboard') }}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left me-2"></i> Volver al dashboard
+  </a>
+</div>
 
     <form method="POST" class="card p-4 shadow-sm" id="form-retiro">
         <div class="mb-3">
@@ -35,7 +40,11 @@
             <textarea name="observacion" class="form-control" rows="3" placeholder="Opcional"></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">📤 Enviar Solicitud</button>
+        <div class="mt-4">
+            <button type="submit" class="btn btn w-100 d-flex justify-content-center align-items-center gap-2">
+                <i class="fas fa-paper-plane me-2"></i> Enviar Solicitud
+            </button>
+        </div>
     </form>
 </div>
 {% endblock %}

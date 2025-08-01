@@ -3,23 +3,24 @@
 {% block title %}Editar Usuario{% endblock %}
 
 {% block content %}
-  <h2>Editar Usuario</h2>
+  <h2>Editar Usuario </h2>
 
-  <div class="actions-bar">
-    <a href="{{ url_for('admin.listar_usuarios') }}" class="btn btn-secondary">
+  <div class="edit-user-actions">
+    <a href="{{ url_for('admin.listar_usuarios') }}" class="back-button">
       <i class="fas fa-arrow-left"></i> Volver a Lista de Usuarios
     </a>
   </div>
 
-  <form method="POST" enctype="multipart/form-data" class="user-form">
+  <form method="POST" enctype="multipart/form-data" class="edit-user-form">
     <label>Username</label>
-    <input type="text" name="username" value="{{ usuario.username }}" required readonly>
+    <input type="text" name="username" value="{{ usuario.username }}" required readonly class="full-width">
 
     <label>Nombre completo</label>
-    <input type="text" name="nombre" value="{{ usuario.nombre }}" required>
+    <input type="text" name="nombre" value="{{ usuario.nombre }}" required class="full-width">
+    
 
     <label>Contraseña (deja en blanco si no deseas cambiarla)</label>
-    <input type="text" name="password">
+    <input type="text" name="password" class="full-width">
 
     <label>Rol</label>
     <select name="rol" required>
@@ -28,23 +29,24 @@
       <option value="INGENIERO" {% if usuario.rol == 'INGENIERO' %}selected{% endif %}>INGENIERO</option>
     </select>
 
+    
+
     <label>Foto actual</label><br>
     {% if usuario.foto %}
       {% set foto_url = url_for('static', filename='uploads/' + usuario.foto) %}
     {% else %}
       {% set foto_url = url_for('static', filename='uploads/default.png') %}
     {% endif %}
-    <img src="{{ foto_url }}" alt="Foto de {{ usuario.nombre }}" width="100">
+    <img src="{{ foto_url }}" alt="Foto de {{ usuario.nombre }}" class="current-photo">
 
     <label>Actualizar foto (opcional)</label>
     <input type="file" name="foto">
 
-    <button type="submit" class="btn btn-success">
+    <button type="submit" class="submit-button">
       <i class="fas fa-save"></i> Actualizar
     </button>
   </form>
 
-  <!-- FLASH MESSAGES -->
   <div class="flash-messages">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}

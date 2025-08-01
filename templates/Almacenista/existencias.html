@@ -6,9 +6,9 @@
 
   <div class="container mt-5">
     <h2 class="mb-4">Existencias Generales</h2>
-    <a href="{{ url_for('almacenista.dashboard') }}" class="btn btn-primary mb-4">← Volver al dashboard</a>
+    <a href="{{ url_for('almacenista.dashboard') }}" class="btn btn-secondary mb-4">← Volver al dashboard</a>
 
-    <div class="input-group mb-4" style="max-width: 400px;">
+    <div class="input-group mb-4">
       <input type="text" id="filtroGlobal" class="form-control" placeholder="Buscar en todas las tablas...">
       <button class="btn btn-outline-secondary" type="button" id="limpiarBusqueda">✕</button>
     </div>
@@ -36,8 +36,16 @@
       </tbody>
     </table>
 
+
     {% if materiales_en_devolucion %}
       <h2 class="mt-5">Materiales en Devolución</h2>
+<div class="mb-2">
+  <strong>Acciones:</strong>
+  <span class="me-3"><i class="fas fa-undo-alt btn-icon"></i> Retornar a stock</span>
+  <span class="me-3"><i class="fas fa-screwdriver-wrench text-orange btn-icon"></i> Ferretería</span>
+  <span><i class="fas fa-times btn-icon"></i> Descartar</span>
+</div>
+
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -61,17 +69,28 @@
               <td>{{ item.cantidad|formatear_numero }}</td>
               <td>{{ item.observacion or '' }}</td>
               <td>{{ item.fecha_local.fecha }} {{ item.fecha_local.hora }}</td>
-              <td>
-                <form method="POST" action="{{ url_for('almacenista.retornar_a_stock', movimiento_id=item.id) }}" style="display:inline;">
-                  <button type="submit" class="btn btn-success btn-sm">Retornar al stock</button>
-                </form>
-                <form method="POST" action="{{ url_for('almacenista.enviar_a_ferreteria', movimiento_id=item.id) }}" style="display:inline;">
-                  <button type="submit" class="btn btn-warning btn-sm">Enviar a ferretería</button>
-                </form>
-                <form method="POST" action="{{ url_for('almacenista.descartar_devolucion', movimiento_id=item.id) }}" style="display:inline;">
-                  <button type="submit" class="btn btn-danger btn-sm">Descartar</button>
-                </form>
-              </td>
+<td>
+  <div class="d-flex justify-content-center">
+    <form method="POST" action="{{ url_for('almacenista.retornar_a_stock', movimiento_id=item.id) }}">
+      <button type="submit" class="btn-icon-retornar" title="Retornar al stock">
+        <i class="fas fa-undo-alt"></i>
+      </button>
+    </form>
+
+    <form method="POST" action="{{ url_for('almacenista.enviar_a_ferreteria', movimiento_id=item.id) }}">
+      <button type="submit" class="btn-icon-ferreteria" title="Enviar a ferretería">
+        <i class="fas fa-screwdriver-wrench"></i>
+      </button>
+    </form>
+
+    <form method="POST" action="{{ url_for('almacenista.descartar_devolucion', movimiento_id=item.id) }}">
+      <button type="submit" class="btn-icon-descartar" title="Descartar devolución">
+        <i class="fas fa-times"></i>
+      </button>
+    </form>
+  </div>
+</td>
+
             </tr>
           {% endfor %}
         </tbody>
@@ -80,6 +99,11 @@
 
     {% if enviados_ferreteria %}
       <h2 class="mt-5">Materiales Enviados a Ferretería</h2>
+      <div class="mb-2">
+          <strong>Acciones:</strong>
+          <span class="me-3"><i class="fas fa-check btn-icon"></i> Aprobar (retorna a stock)</span>
+          <span><i class="fas fa-times btn-icon"></i> Rechazar (Mueve a materiales sin uso)</span>
+      </div>
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -103,14 +127,21 @@
               <td>{{ item.cantidad|formatear_numero }}</td>
               <td>{{ item.observacion or '' }}</td>
               <td>{{ item.fecha_local.fecha }} {{ item.fecha_local.hora }}</td>
-              <td>
-                <form method="POST" action="{{ url_for('almacenista.aprobar_ferreteria', movimiento_id=item.id) }}" style="display:inline;">
-                  <button type="submit" class="btn btn-success btn-sm">Aprobar</button>
-                </form>
-                <form method="POST" action="{{ url_for('almacenista.rechazar_ferreteria', movimiento_id=item.id) }}" style="display:inline;">
-                  <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
-                </form>
-              </td>
+<td class="text-center">
+  <form method="POST" action="{{ url_for('almacenista.aprobar_ferreteria', movimiento_id=item.id) }}" class="d-inline-block">
+    <button type="submit" class="btn-icon-retornar" title="Aprobar devolución">
+      <i class="fas fa-check"></i>
+    </button>
+  </form>
+
+  <form method="POST" action="{{ url_for('almacenista.rechazar_ferreteria', movimiento_id=item.id) }}" class="d-inline-block">
+    <button type="submit" class="btn-icon-descartar" title="Rechazar devolución">
+      <i class="fas fa-times"></i>
+    </button>
+  </form>
+</td>
+
+
             </tr>
           {% endfor %}
         </tbody>

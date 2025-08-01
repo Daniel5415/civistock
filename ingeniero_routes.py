@@ -113,14 +113,14 @@ def solicitar_retiro():
 
         if almacenista and material:
             mensaje = (
-                f"📦 Nueva solicitud de retiro: {material.nombre} "
+                f" Nueva solicitud de retiro: {material.nombre} "
                 f"({cantidad} {material.unidad}) solicitada por {usuario.nombre}."
             )
             if observacion:
                 mensaje += f"\n📝 Observación: {observacion}"
             emitir_notificacion(tipo_usuario='almacenista', usuario_id=almacenista.id, mensaje=mensaje)
 
-        flash('✅ Solicitud de retiro enviada.', 'success')
+        flash(' Solicitud de retiro enviada.', 'success')
         return redirect(url_for('ingeniero.solicitar_retiro'))
 
     return render_template('Ingeniero/solicitar_retiro.html', materiales=materiales)
@@ -274,7 +274,7 @@ def realizar_devolucion():
     usuario_id = session.get('user_id')
 
     if request.method == 'GET':
-        materiales = Material.query.filter_by(activo=True).all()  # ✅ Solo materiales activos
+        materiales = Material.query.filter_by(activo=True).all()  #  Solo materiales activos
 
         for material in materiales:
             total_retirado = db.session.query(func.sum(Movimiento.cantidad)).filter(
@@ -366,18 +366,18 @@ def realizar_devolucion():
 
     if almacenista:
         mensaje = (
-            f"↩️ Nueva solicitud de devolución: {material.nombre} "
+            f"↩ Nueva solicitud de devolución: {material.nombre} "
             f"({cantidad} {material.unidad}) solicitada por {usuario.nombre}."
         )
         if observacion:
-            mensaje += f"\n📝 Observación: {observacion}"
+            mensaje += f"\n Observación: {observacion}"
         try:
             emitir_notificacion(tipo_usuario='almacenista', usuario_id=almacenista.id, mensaje=mensaje)
 
         except Exception as e:
             print(f"Error al emitir notificación: {e}")
 
-    flash('✅ Solicitud de devolución enviada correctamente.', 'success')
+    flash(' Solicitud de devolución enviada correctamente.', 'success')
     return redirect(url_for('ingeniero.reportes'))
 # -----------------------------
 # Generar reporte en pdf

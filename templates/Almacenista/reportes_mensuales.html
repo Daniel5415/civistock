@@ -4,7 +4,9 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-3">📊 Reporte mensual - {{ mes }}/{{ anio }}</h2>
+    <h2 class="mb-3">
+        <i class="fas fa-chart-line"></i> Reporte mensual - {{ mes }}/{{ anio }}
+    </h2>
 
     <!-- Botones de navegación -->
     <div class="d-flex justify-content-between mb-4">
@@ -12,12 +14,14 @@
             ← Volver al dashboard
         </a>
         <a href="{{ url_for('almacenista.revisar_devoluciones') }}" class="btn btn-info">
-            📂 Revisar Devoluciones Pendientes
+            <i class="fas fa-folder-open"></i> Revisar Devoluciones Pendientes
         </a>
     </div>
 
     <!-- Retiros Aprobados -->
-    <h4 class="mt-4 text-success">✅ Retiros Aprobados</h4>
+    <h4 class="text-success">
+        <i class="fas fa-check-circle"></i> Retiros Aprobados
+    </h4>
     {% if aprobados %}
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
@@ -46,7 +50,9 @@
     {% endif %}
 
     <!-- Retiros Rechazados -->
-    <h4 class="mt-5 text-warning">⚠️ Retiros Rechazados</h4>
+    <h4 style="color: #ee7021;" class="text-orange">
+        <i class="fas fa-exclamation-triangle"></i> Retiros Rechazados
+    </h4>
     {% if rechazados %}
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
@@ -77,7 +83,9 @@
     {% endif %}
 
     <!-- Devoluciones -->
-    <h4 class="mt-5 text-info">♻️ Devoluciones</h4>
+    <h4 style="color: #0d47a1;">
+        <i class="fas fa-recycle" ></i> Devoluciones
+    </h4>
     {% if devoluciones %}
     <div class="table-responsive">
         <table class="table table-bordered table-striped">

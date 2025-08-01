@@ -54,11 +54,12 @@ migrate = Migrate(app, db)
 from admin_routes import admin_bp
 from almacenista_routes import almacenista_bp
 from ingeniero_routes import ingeniero_bp
+from main_routes import main_bp
 
 app.register_blueprint(admin_bp)
 app.register_blueprint(almacenista_bp)
 app.register_blueprint(ingeniero_bp)
-
+app.register_blueprint(main_bp)
 # -----------------------------
 # CONTEXT PROCESSOR
 # -----------------------------
@@ -221,7 +222,7 @@ def login():
                 return redirect(url_for('home'))
         else:
             flash('Usuario o contraseña incorrectos.', 'error')
-            return render_template('login.html')
+            return render_template('index.html')
 
     return render_template('login.html')
 

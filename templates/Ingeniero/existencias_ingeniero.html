@@ -3,12 +3,14 @@
 {% block title %}Existencias - Ingeniero{% endblock %}
 
 {% block content %}
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <a href="{{ url_for('ingeniero.dashboard') }}" class="btn-volver">← Volver al dashboard</a>
-    <input type="text" id="busqueda" placeholder="Buscar material..." style="padding: 5px; width: 200px;">
-  </div>
+  <a href="{{ url_for('ingeniero.dashboard') }}" class="btn-volver">← Volver al dashboard</a>
 
-  <h2>Inventario disponible</h2>
+  <h2 class="mb-4">Inventario disponible</h2>
+
+  <!-- Barra de búsqueda justo debajo del título -->
+  <div class="mb-4" style="max-width: 400px;">
+    <input type="text" id="busqueda" placeholder="Buscar material..." class="form-control">
+  </div>
 
   {% if materiales %}
     <table id="tabla-materiales">

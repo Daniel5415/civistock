@@ -9,16 +9,6 @@
 
   <h2>Solicitudes de Retiro</h2>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div id="flash-messages">
-        {% for category, message in messages %}
-          <div class="flash flash-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-
   {% set pendientes = solicitudes | selectattr('estado', 'equalto', 'PENDIENTE') | list %}
 
   {% if pendientes %}
@@ -79,4 +69,19 @@
   {% else %}
     <p>No hay solicitudes pendientes.</p>
   {% endif %}
+
+  <script>
+  const tableHead = document.querySelector(".stock-table thead");
+  const wrapper = window;
+
+  wrapper.addEventListener("scroll", () => {
+    const scrolled = wrapper.scrollY || wrapper.pageYOffset;
+    if (scrolled > 20) {
+      tableHead.style.boxShadow = "0 4px 12px rgba(0,0,0,0.06)";
+    } else {
+      tableHead.style.boxShadow = "none";
+    }
+  });
+</script>
+
 {% endblock %}

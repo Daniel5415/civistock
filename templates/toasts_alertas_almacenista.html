@@ -3,13 +3,13 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       {% if pendientes_retiro and pendientes_retiro > 0 %}
-        mostrarToast("📦 Revisar solicitudes de retiro pendientes ({{ pendientes_retiro }})", { tipo: 'alerta' });
+        mostrarToast(" Revisar solicitudes de retiro pendientes ({{ pendientes_retiro }})", { tipo: 'alerta' });
       {% endif %}
       {% if devoluciones_pendientes and devoluciones_pendientes > 0 %}
-        mostrarToast("🔁 Revisar devoluciones pendientes ({{ devoluciones_pendientes }})", { tipo: 'alerta' });
+        mostrarToast(" Revisar devoluciones pendientes ({{ devoluciones_pendientes }})", { tipo: 'alerta' });
       {% endif %}
       {% if devoluciones_en_revision and devoluciones_en_revision > 0 %}
-        mostrarToast("🛠️ Revisar materiales en ferretería ({{ devoluciones_en_revision }})", { tipo: 'alerta' });
+        mostrarToast(" Revisar materiales en ferretería ({{ devoluciones_en_revision }})", { tipo: 'alerta' });
       {% endif %}
     });
   </script>

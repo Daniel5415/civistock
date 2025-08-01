@@ -13,15 +13,82 @@
   <div class="overlay"></div>
 
   <div class="index-container">
+
+    <!-- Sección de bienvenida -->
+
     <div class="welcome-section active" id="welcomeSection">
       <img src="{{ url_for('static', filename='logo_civistock.png') }}" alt="CIVISTOCK Logo" class="index-logo">
       <h1 class="welcome-subtitle">Gestión moderna de materiales para ingeniería civil</h1>
       <p class="welcome-description">Bienvenido al sistema de control y gestión de materiales de obra.</p>
-      <a href="{{ url_for('login') }}" class="welcome-button">
+      <button id="btnIngresar" class="welcome-button">
         <i class="fas fa-sign-in-alt"></i> Ingresar al sistema
-      </a>
+      </button>
+    </div>
+
+    <!-- Sección del login -->
+
+    <div class="login-box login-section" id="loginSection">
+      <form method="POST" action="{{ url_for('login') }}" class="login-form">
+        <img src="{{ url_for('static', filename='civistockresponsive.png') }}" alt="CIVISTOCK Logo" class="login-logo">
+        <h3 class="login-title">Iniciar Sesión</h3>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <input type="text" name="username" placeholder="Usuario" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button type="submit" class="login-button"><i class="fas fa-lock"></i> Entrar</button>
+
+        <p class="forgot-password">
+          <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
+        </p>
+      </form>
     </div>
   </div>
+
+  <script>
+    document.getElementById('btnIngresar').addEventListener('click', () => {
+  const welcome = document.getElementById('welcomeSection');
+  const login = document.getElementById('loginSection');
+  const body = document.body;
+
+  welcome.classList.add('fade-out');
+
+  setTimeout(() => {
+    welcome.style.display = 'none';
+    login.classList.add('show');
+    body.classList.add('login-mode');  // activa modo login
+  }, 800);
+});
+
+    // Lógica para el enlace "¿Olvidaste tu contraseña?"
+    document.addEventListener('DOMContentLoaded', () => {
+      const forgotLink = document.getElementById('forgotPasswordLink');
+      if (forgotLink) {
+        forgotLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          alert('Por favor contacte con el administrador para facilitarle una nueva contraseña.');
+        });
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+  const hasFlashMessages = document.querySelector('.flash-messages');
+  if (hasFlashMessages) {
+    document.getElementById('welcomeSection').style.display = 'none';
+    document.getElementById('loginSection').classList.add('show');
+    document.body.classList.add('login-mode');
+  }
+});
+
+  </script>
 
 </body>
 </html>

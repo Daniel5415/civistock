@@ -1,69 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %}Lista de Usuarios{% endblock %}
+{% block title %}Lista de Usuarios {% endblock %}
 
 {% block content %}
-  <h2>Lista de Usuarios</h2>
+  <div class="container-lista-usuarios">
+    <h2 class="titulo-lista-usuarios">Lista de Usuarios</h2>
 
-  <div class="actions-bar">
-    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-      <i class="fas fa-arrow-left"></i> Volver al Dashboard
-    </a>
-    <a href="{{ url_for('admin.nuevo_usuario') }}" class="btn btn-primary">
-      <i class="fas fa-plus"></i> Nuevo Usuario
-    </a>
-  </div>
+    <div class="actions-bar">
+      <a href="{{ url_for('admin.dashboard') }}" class="btn-secundario">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+      </a>
+      <a href="{{ url_for('admin.nuevo_usuario') }}" class="btn-principal">
+        <i class="fas fa-plus"></i> Nuevo Usuario
+      </a>
+    </div>
 
-{% set default_img = url_for('static', filename='uploads/default.png') %}
+    {% set default_img = url_for('static', filename='uploads/default.png') %}
 
-  <table class="user-table">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Nombre</th>
-        <th>Rol</th>
-        <th>Foto</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for usuario in usuarios %}
+    <table class="tabla-usuarios">
+      <thead>
         <tr>
-          <td>{{ usuario.username }}</td>
-          <td>{{ usuario.nombre }}</td>
-          <td>{{ usuario.rol }}</td>
-          <td>
-            <img 
-            src="{{ url_for('static', filename='uploads/' ~ (usuario.foto|default('default.png'))) }}" 
-            alt="Foto de {{ usuario.nombre }}" 
-            width="50"
-            onerror='this.onerror=null;this.src="{{ default_img }}";'>
-          </td>
-          <td>
-            {% if usuario.username != 'admin' %}
-              <a href="{{ url_for('admin.editar_usuario', user_id=usuario.id) }}" class="btn btn-warning btn-sm">Editar</a>
-              <form action="{{ url_for('admin.eliminar_usuario', user_id=usuario.id) }}" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro?');">Eliminar</button>
-              </form>
-            {% else %}
-              <span class="text-muted">Gestionar desde Perfil</span>
-            {% endif %}
-          </td>
+          <th>Username</th>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>Foto</th>
+          <th>Acciones</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for usuario in usuarios %}
+          <tr>
+            <td>{{ usuario.username }}</td>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.rol }}</td>
+            <td>
+              <img 
+                src="{{ url_for('static', filename='uploads/' ~ (usuario.foto|default('default.png'))) }}" class="foto-usuario"
+                alt="Foto de {{ usuario.nombre }}" 
+                width="50"
+                onerror='this.onerror=null;this.src="{{ default_img }}";'>
+            </td>
+            <td>
+              {% if usuario.username != 'admin' %}
+                <a href="{{ url_for('admin.editar_usuario', user_id=usuario.id) }}" class="btn-accion editar">Editar</a>
+                <form action="{{ url_for('admin.eliminar_usuario', user_id=usuario.id) }}" method="post" style="display:inline;">
+                  <button type="submit" class="btn-accion eliminar" onclick="return confirm('¿Estás seguro?');">Eliminar</button>
+                </form>
+              {% else %}
+                <span class="text-muted">Gestionar desde Perfil</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-  <!-- FLASH MESSAGES -->
-  <div class="flash-messages">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-          {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
   </div>
 {% endblock %}

@@ -4,12 +4,12 @@
 {% block title %}Dashboard Almacenista - CIVISTOCK{% endblock %}
 
 {% block content %}
-<div class="welcome-text">
-  <h2>¡Bienvenido Almacenista!</h2>
+<div class="welcome-text"> 
+<h2 class="dashboard-title">¡Bienvenido Almacenista!</h2>
   <p>
     En este panel podrás registrar ingresos de material, actualizar existencias,
     autorizar retiros del ingeniero y generar reportes mensuales. Herramientas
-    pensadas para que tu gestión sea más sencilla y organizada cada día.
+    pensadas para que tu gestión sea más sencilla y organizada cada día.</div>
   </p>
 </div>
 
@@ -57,8 +57,10 @@
 </div>
 
 <!-- Panel de alertas -->
-<div id="panel-alertas">
+<div id="panel-alertas" class=panel-alertas>
   {% include 'Almacenista/componentes/_fragmento_panel_alertas.html' %}
 </div>
 
+<div class="dashboard-footer">
+  <p>© 2025 CIVISTOCK. Todos los derechos reservados.</p>
 {% endblock %}

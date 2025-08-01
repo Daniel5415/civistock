@@ -2,82 +2,123 @@
 {% include "toasts_alertas_almacenista.html" %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-exis mt-4">
 
-    <a href="{{ url_for('almacenista.dashboard') }}" class="btn btn-secondary mb-3">← Volver al dashboard</a>
+  <a href="{{ url_for('almacenista.dashboard') }}" class="btn btn-secondary mb-3">← Volver al dashboard</a>
 
-    <h2 class="text-center mb-4">Actualizar Existencias</h2>
-    
-<!-- Búsqueda -->
-<div class="form-busqueda mb-3 d-flex input-clearable">
+  <h2 class="text-center mb-4">Actualizar Existencias</h2>
+
+  <!-- Búsqueda -->
+  <div class="form-busqueda mb-3 input-clearable">
     <input 
-        type="text" 
-        id="busquedaMateriales"
-        class="form-control me-2" 
-        placeholder="Buscar por nombre, código, descripción o unidad..."
+      type="text" 
+      id="busquedaMateriales"
+      class="form-control" 
+      placeholder="Buscar por nombre, código, descripción o unidad..."
     >
     <button type="button" class="clear-btn" id="clearSearch">&times;</button>
-</div>
+  </div>
 
-<script>
+  <script>
     const inputBusqueda = document.getElementById('busquedaMateriales');
     const clearBtn = document.getElementById('clearSearch');
 
-    function filtrarFilas() {
-        const filtro = inputBusqueda.value.toLowerCase();
-        const filas = document.querySelectorAll('table tbody tr');
+    function filtrarCards() {
+      const filtro = inputBusqueda.value.toLowerCase();
+      const cards = document.querySelectorAll('.material-card');
 
-        filas.forEach(fila => {
-            const textoFila = fila.textContent.toLowerCase();
-            fila.style.display = textoFila.includes(filtro) ? '' : 'none';
-        });
+      cards.forEach(card => {
+        const texto = card.textContent.toLowerCase();
+        card.style.display = texto.includes(filtro) ? '' : 'none';
+      });
 
-        // Mostrar u ocultar el botón de limpiar
-        clearBtn.style.display = filtro ? 'block' : 'none';
+      clearBtn.style.display = filtro ? 'block' : 'none';
     }
 
-    inputBusqueda.addEventListener('input', filtrarFilas);
-
+    inputBusqueda.addEventListener('input', filtrarCards);
     clearBtn.addEventListener('click', function () {
-        inputBusqueda.value = '';
-        filtrarFilas(); // Reinicia la búsqueda
+      inputBusqueda.value = '';
+      filtrarCards();
     });
+  </script>
+
+  <!-- Lista como tarjetas -->
+{% if grupos %}
+    <div class="cards-list">
+        {% for unidad, mats in grupos.items() %}
+            <div class="unidad-group">
+                <h3 class="unidad-title">
+                    {{ unidad }} 
+                    {% set total = mats|length %}
+                    <span class="unidad-badge">{{ total }} material{{ 'es' if total != 1 }}</span>
+                </h3>
+                <div class="cards-list">
+                    {% for material in mats %}
+                        {% set es_bajo = (material.stock|float) < (material.stock_minimo|float) %}
+                        <div class="material-card {% if es_bajo %}low-stock{% endif %}">
+                            <div class="field">
+                                <strong>Código:</strong> <span>{{ material.codigo }}</span>
+                            </div>
+                            <div class="field">
+                                <strong>Nombre:</strong> <span>{{ material.nombre }}</span>
+                            </div>
+                            <div class="field">
+                                <strong>Descripción:</strong> <span>{{ material.descripcion }}</span>
+                            </div>
+                            <div class="field">
+                                <strong>Stock mínimo:</strong> <span>{{ material.stock_minimo|formatear_numero }}</span>
+                            </div>
+                            <div class="field">
+                                <strong>Stock actual:</strong> <span>{{ material.stock|formatear_numero }}</span>
+                            </div>
+
+                            <div class="field" style="margin-top:6px;">
+                                <form method="POST" action="{{ url_for('almacenista.actualizar_existencia_individual', material_id=material.id) }}" class="update-stock-form">
+                                    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                        <div style="flex:1; min-width:100px;">
+                                            <label class="visually-hidden" for="nuevo_stock_{{ material.id }}">Nuevo stock</label>
+                                            <input 
+                                                type="number" 
+                                                id="nuevo_stock_{{ material.id }}"
+                                                name="nuevo_stock" 
+                                                value="{{ material.stock|formatear_numero }}" 
+                                                step="any" 
+                                                required 
+                                                class="form-control"
+                                            >
+                                        </div>
+                                        <div>
+                                            <button type="submit" class="btn btn-primary">
+                                                Actualizar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+{% else %}
+    <p>No hay materiales registrados aún.</p>
+{% endif %}
+
+</div>
+<script>
+document.querySelectorAll('.unidad-title .toggle-group').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.closest('.unidad-group');
+    const list = group.querySelector('.cards-list');
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', !expanded);
+    btn.querySelector('i').classList.toggle('fa-chevron-up', expanded);
+    btn.querySelector('i').classList.toggle('fa-chevron-down', !expanded);
+    list.style.display = expanded ? 'none' : 'grid';
+  });
+});
 </script>
 
-
-    <table class="table table-bordered table-hover">
-        <thead class="thead-light">
-            <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Unidad</th>
-                <th>Stock Mínimo</th>
-                <th>Stock Actual</th>
-                <th>Nuevo Stock</th>
-                <th>Actualizar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for material in materiales %}
-            <tr>
-                <td>{{ material.codigo }}</td>
-                <td>{{ material.nombre }}</td>
-                <td>{{ material.descripcion }}</td>
-                <td>{{ material.unidad }}</td>
-                <td>{{ material.stock_minimo|formatear_numero }}</td>
-                <td>{{ material.stock|formatear_numero }}</td>
-                <td>
-                    <form method="POST" action="{{ url_for('almacenista.actualizar_existencia_individual', material_id=material.id) }}" class="form-inline">
-                        <input type="number" name="nuevo_stock" value="{{ material.stock|formatear_numero }}" step="any" class="form-control" style="width: 100px;" required>
-                </td>
-                <td>
-                        <button type="submit" class="btn btn-primary">Actualizar</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
 {% endblock %}

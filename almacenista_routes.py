@@ -7,6 +7,7 @@ from utils import fecha_y_hora_colombia, emitir_notificacion, obtener_alertas_al
 from sqlalchemy import and_, not_, or_
 from sqlalchemy.exc import IntegrityError
 import os
+from collections import defaultdict
 almacenista_bp = Blueprint('almacenista', __name__, url_prefix='/almacenista')
 
 # -----------------------------
@@ -68,7 +69,7 @@ def materiales():
         try:
             db.session.add(nuevo)
             db.session.commit()
-            flash('✅ Material creado exitosamente.', 'success')
+            flash(' Material creado exitosamente.', 'success')
         except IntegrityError:
             db.session.rollback()
             existente = Material.query.filter_by(codigo=codigo, activo=False).first()
@@ -80,9 +81,9 @@ def materiales():
                 existente.stock_minimo = int(stock_minimo)
                 existente.activo = True
                 db.session.commit()
-                flash(f'✅ Material creado exitosamente.', 'success')
+                flash(f' Material creado exitosamente.', 'success')
             else:
-                flash(f'❌ Ya existe un material con el código {codigo}.', 'error')
+                flash(f' Ya existe un material con el código {codigo}.', 'error')
 
         return redirect(url_for('almacenista.materiales'))
 
@@ -115,7 +116,7 @@ def editar_material(id):
         material.stock = float(request.form['stock'])
         material.stock_minimo = int(request.form['stock_minimo'])
         db.session.commit()
-        flash('✅ Material actualizado exitosamente.', 'success')
+        flash(' Material actualizado exitosamente.', 'success')
         return redirect(url_for('almacenista.materiales'))
 
     return render_template('Almacenista/editar_material.html', material=material)
@@ -130,7 +131,7 @@ def eliminar_material(id):
     material = Material.query.get_or_404(id)
     material.activo = False
     db.session.commit()
-    flash('❌ Material eliminado exitosamente.', 'warning')
+    flash(' Material eliminado exitosamente.', 'warning')
     return redirect(url_for('almacenista.materiales'))
 
 # -----------------------------
@@ -140,9 +141,9 @@ def eliminar_material(id):
 def actualizar_existencias():
     query = request.args.get('q', '').strip()
     
-    materiales = Material.query.filter(Material.activo == True)
+    materiales_q = Material.query.filter(Material.activo == True)
     if query:
-        materiales = materiales.filter(
+        materiales_q = materiales_q.filter(
             db.or_(
                 Material.nombre.ilike(f"%{query}%"),
                 Material.codigo.ilike(f"%{query}%"),
@@ -151,11 +152,24 @@ def actualizar_existencias():
             )
         )
     
-    materiales = materiales.order_by(Material.nombre).all()
+    materiales = materiales_q.order_by(Material.nombre).all()
 
-    return render_template('Almacenista/actualizar_existencias.html', materiales=materiales)
+    # Agrupar por unidad, con fallback si no tiene
+    grupos = defaultdict(list)
+    for m in materiales:
+        unidad = m.unidad if (hasattr(m, 'unidad') and m.unidad) else 'Sin unidad'
+        grupos[unidad].append(m)
 
+    # Dentro de cada grupo: primero los de stock bajo (stock < stock_minimo), luego por nombre
+    for unidad, mats in list(grupos.items()):
+        mats.sort(key=lambda m: ((getattr(m, 'stock', 0) >= getattr(m, 'stock_minimo', 0)), (getattr(m, 'nombre', '') or '').lower()))
+        grupos[unidad] = mats  # reasignar por si acaso
 
+    return render_template(
+        'Almacenista/actualizar_existencias.html',
+        grupos=grupos,
+        q=query
+    )
 # -----------------------------
 # ACTUALIZAR EXISTENCIA INDIVIDUAL
 # -----------------------------
@@ -215,14 +229,14 @@ def autorizar_retiro(id):
     solicitud = Movimiento.query.get_or_404(id)
     material = Material.query.filter_by(id=solicitud.material_id, activo=True).first()  # Aseguramos que el material esté activo
     if not material:
-        flash('❌ Material no encontrado o ya no está disponible.', 'error')
+        flash(' Material no encontrado o ya no está disponible.', 'error')
         return redirect(url_for('almacenista.retiros_pendientes'))
 
     observacion = request.form.get('observacion_almacenista')
     almacenista = db.session.get(User, session.get("user_id"))
 
     if material.stock < solicitud.cantidad:
-        flash(f'❌ Stock insuficiente. Disponible: {material.stock}', 'error')
+        flash(f' Stock insuficiente. Disponible: {material.stock}', 'error')
         return redirect(url_for('almacenista.retiros_pendientes'))
     
     # Actualizaciones
@@ -235,11 +249,11 @@ def autorizar_retiro(id):
     ingeniero = solicitud.solicitado_por
     
     if ingeniero:
-        mensaje = f"✅ Retiro autorizado: {material.nombre} ({solicitud.cantidad} {material.unidad}) por {almacenista.nombre}"
+        mensaje = f" Retiro autorizado: {material.nombre} ({solicitud.cantidad} {material.unidad}) por {almacenista.nombre}"
     db.session.commit()
     
     emitir_notificacion(tipo_usuario='ingeniero', mensaje=mensaje, usuario_id=ingeniero.id)
-    flash('✅ Retiro autorizado correctamente.', 'success')
+    flash(' Retiro autorizado correctamente.', 'success')
     return redirect(url_for('almacenista.retiros_pendientes'))
 
 
@@ -260,7 +274,7 @@ def rechazar_retiro(id):
     
     # Validaciones opcionales (por ejemplo, verificar que esté pendiente, etc.)
     if solicitud.estado != 'PENDIENTE':
-        flash('⚠️ La solicitud ya fue procesada.', 'warning')
+        flash(' La solicitud ya fue procesada.', 'warning')
         return redirect(url_for('almacenista.retiros_pendientes'))
 
     # Actualizar movimiento
@@ -271,11 +285,11 @@ def rechazar_retiro(id):
 
     # Crear notificación para el ingeniero
     if ingeniero:
-        mensaje = f"❌ Solicitud de retiro rechazada: {material.nombre} ({solicitud.cantidad} {material.unidad})."
+        mensaje = f" Solicitud de retiro rechazada: {material.nombre} ({solicitud.cantidad} {material.unidad})."
     db.session.commit()
 
     emitir_notificacion(tipo_usuario='ingeniero', usuario_id=ingeniero.id, mensaje=mensaje)
-    flash('❌ Solicitud de retiro rechazada.', 'warning')
+    flash(' Solicitud de retiro rechazada.', 'warning')
     return redirect(url_for('almacenista.retiros_pendientes'))
 
 # -----------------------------
@@ -353,8 +367,8 @@ def aprobar_o_rechazar_devolucion(id):
         material = devolucion.material
         material.en_devolucion = (material.en_devolucion or 0) + devolucion.cantidad
         devolucion.estado = 'AUTORIZADO'
-        mensaje = f"📦 Devolución autorizada: {material.nombre} ({devolucion.cantidad} {material.unidad}). En proceso de validación."
-        flash('✅ Devolución aprobada.', 'success')
+        mensaje = f" Devolución autorizada: {material.nombre} ({devolucion.cantidad} {material.unidad}). En proceso de validación."
+        flash(' Devolución aprobada.', 'success')
 
     elif decision == 'rechazar':
         if not observacion:
@@ -363,8 +377,8 @@ def aprobar_o_rechazar_devolucion(id):
 
         devolucion.estado = 'RECHAZADO'
         material = devolucion.material  # para el mensaje
-        mensaje = f"❌ Devolución rechazada: {material.nombre} ({devolucion.cantidad} {material.unidad}). Contacte al almacenista."
-        flash('❌ Devolución rechazada.', 'warning')
+        mensaje = f" Devolución rechazada: {material.nombre} ({devolucion.cantidad} {material.unidad}). Contacte al almacenista."
+        flash(' Devolución rechazada.', 'warning')
     else:
         flash('Acción no válida.', 'error')
         return redirect(url_for('almacenista.revisar_devoluciones'))
@@ -417,15 +431,15 @@ def existencias():
         Movimiento.tipo == 'DEVOLUCION',
         Movimiento.estado == 'AUTORIZADO',
         Movimiento.visible_en_existencias == True,
-        not_(Movimiento.observacion_almacenista.ilike('%estado: en revisión en ferretería%'))
+        not_(Movimiento.observacion_almacenista.ilike('%estado: En revisión en ferretería%'))
     ).order_by(Movimiento.fecha.desc()).all()
 
     # Materiales enviados a ferretería
     enviados_ferreteria = Movimiento.query.filter(
         Movimiento.tipo == 'DEVOLUCION',
         Movimiento.estado == 'AUTORIZADO',
-        Movimiento.visible_en_existencias == True,
-        Movimiento.observacion_almacenista.ilike('%estado: en revisión en ferretería%')
+        Movimiento.visible_en_existencias == False,
+        Movimiento.observacion_almacenista.ilike('%estado: En revisión en ferretería%')
     ).order_by(Movimiento.fecha.desc()).all()
 
     # Materiales rechazados por ferretería o descartados por el almacenista
@@ -487,7 +501,7 @@ def retornar_a_stock(movimiento_id):
     db.session.commit()
 
     # Crear mensaje de notificación
-    mensaje = f"♻️ Devolución de {material.nombre} ({movimiento.cantidad} {material.unidad}) revisada y retornada al stock."
+    mensaje = f" Devolución de {material.nombre} ({movimiento.cantidad} {material.unidad}) revisada y retornada al stock."
     usuario_id = movimiento.solicitado_por_id
 
     emitir_notificacion(tipo_usuario='ingeniero', usuario_id=usuario_id, mensaje=mensaje) 
@@ -509,7 +523,7 @@ def enviar_a_ferreteria(movimiento_id):
         movimiento.observacion_almacenista, "En revisión en ferretería"
     )
 
-    mensaje = f"🛠️ Devolución de {material.nombre} ({movimiento.cantidad} {material.unidad}) enviada a revisión por ferretería."
+    mensaje = f" Devolución de {material.nombre} ({movimiento.cantidad} {material.unidad}) enviada a revisión por ferretería."
     usuario_id = movimiento.solicitado_por_id
 
     db.session.commit()
@@ -537,7 +551,7 @@ def aprobar_ferreteria(movimiento_id):
         material.stock += movimiento.cantidad
 
     mensaje = (
-        f"✅ Ferretería ha estudiado la devolución de {material.nombre} "
+        f" Ferretería ha estudiado la devolución de {material.nombre} "
         f"({movimiento.cantidad} {material.unidad}) y ha sido aprobada. "
         f"El material ahora está disponible para su uso en stock."
     )
@@ -593,7 +607,7 @@ def descartar_devolucion(movimiento_id):
     )
 
     # Notificación al ingeniero
-    mensaje = f"⚠️ La devolución de {material.nombre} ({movimiento.cantidad} {material.unidad}) ha sido revisada. El material ha sido marcado como no utilizable y no estará disponible en el stock."
+    mensaje = f" La devolución de {material.nombre} ({movimiento.cantidad} {material.unidad}) ha sido revisada. El material ha sido marcado como no utilizable y no estará disponible en el stock."
     usuario_id = movimiento.solicitado_por_id
     db.session.commit()
     

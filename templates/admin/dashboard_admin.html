@@ -5,26 +5,26 @@
 {% block content %}
   <header class="admin-header">
     <div class="admin-profile">
-      <img src="{{ url_for('static', filename='uploads/' ~ (user_photo or 'default.png')) }}" alt="Foto de {{ user_name }}" class="admin-photo" width="80">
+      <img src="{{ url_for('static', filename='uploads/' ~ (user_photo or 'default.png')) }}" alt="Foto de {{ user_name }}" class="photo-admin">
       <div class="admin-info">
         <h2>Bienvenido {{ user_name }}</h2>
         <p>(Administrador)</p>
       </div>
     </div>
-    <p>Administra los usuarios del sistema y gestiona tu propia cuenta.</p>
+    <p class="admin-subtitle">Administra los usuarios del sistema y gestiona tu propia cuenta.</p>
   </header>
 
   <section class="admin-cards">
-    <a href="{{ url_for('admin.listar_usuarios') }}" class="dashboard-card">
-      <div class="card-icon">
+    <a href="{{ url_for('admin.listar_usuarios') }}" class="dashboard-card-admin">
+      <div class="card-icon-admin">
         <i class="fas fa-users"></i>
       </div>
       <h3>Gestionar Usuarios</h3>
       <p>Crea, edita o elimina usuarios del sistema.</p>
     </a>
 
-    <a href="{{ url_for('admin.perfil') }}" class="dashboard-card">
-      <div class="card-icon">
+    <a href="{{ url_for('admin.perfil') }}" class="dashboard-card-admin">
+      <div class="card-icon-admin">
         <i class="fas fa-user-cog"></i>
       </div>
       <h3>Mi Perfil</h3>
@@ -32,7 +32,6 @@
     </a>
   </section>
 
-  <!-- FLASH MESSAGES -->
   <div class="flash-messages">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
