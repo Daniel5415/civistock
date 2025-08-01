@@ -226,6 +226,84 @@ button, input, a {
     background-color: #d4edda;
     color: #155724;
 }
+/* ----------------------------------- */
+/* ---------RESPONSIVE DE LOGIN Y HOME -------- */
+/* ----------------------------------- */
+/* --- Mejora de responsividad para welcome / login --- */
+.index-container {
+  padding: 0 12px; /* evitar que se vea demasiado apretado en ancho chico */
+  box-sizing: border-box;
+}
+
+/* Permitir que en pantallas muy chicas el cuadro use más espacio útil */
+.welcome-section,
+.login-box {
+  width: 100%;
+  max-width: 480px; /* un poco más ancho en móviles sin pasarse */
+  padding: 2rem 1.5rem;
+}
+
+/* Ajustes tipográficos escalables */
+.welcome-section h1 {
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.welcome-description {
+  font-size: clamp(0.9rem, 1vw, 1rem);
+}
+
+/* Botón de ingresar ocupa todo en pantallas chicas */
+@media (max-width: 640px) {
+  .welcome-button {
+    width: 100%;
+    padding: 14px 0;
+  }
+
+  .login-title {
+    font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+  }
+
+  .login-form input[type="text"],
+  .login-form input[type="password"] {
+    padding: 10px 12px;
+  }
+
+  .login-button {
+    padding: 12px;
+  }
+
+  /* Reducir sombras si se siente muy pesado */
+  .welcome-section,
+  .login-box {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+}
+
+/* Si hay flash, garantizar que login se muestre bien sin solaparse */
+.flash-messages {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Asegurar que el contenido no se corte verticalmente en móviles muy pequeños */
+body.index-body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hacer que el logo escale mejor */
+.index-logo,
+.login-logo {
+  max-width: 140px;
+}
+
+@media (max-width: 480px) {
+  .index-logo,
+  .login-logo {
+    max-width: 120px;
+  }
+}
 
 
 
