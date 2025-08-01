@@ -2,30 +2,30 @@
 
 {% block content %}
 <div class="content-container">
-  <div class="d-flex header-reportes mb-3">
+  <div class="header-reportes mb-3">
     <div class="title-wrapper">
-      <h2><i class="fas fa-file-chart-line me-2"></i> Reportes de Obra</h2>
+      <h2><i class="fas fa-file-chart-line me-2" aria-hidden="true"></i> Reportes de Obra</h2>
     </div>
     <div class="buttons-group">
       <a href="{{ url_for('ingeniero.dashboard') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Volver al dashboard
+        <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Volver al dashboard
       </a>
-      
+
       <a href="{{ url_for('ingeniero.realizar_devolucion') }}" class="btn btn-warning">
-        <i class="fas fa-undo-alt me-1"></i> Realizar devolución
+        <i class="fas fa-undo-alt me-1" aria-hidden="true"></i> Realizar devolución
       </a>
       <a href="{{ url_for('ingeniero.generar_pdf') }}" class="btn btn-primary" target="_blank">
-        <i class="fas fa-print me-1"></i> Generar reporte PDF
+        <i class="fas fa-print me-1" aria-hidden="true"></i> Generar reporte PDF
       </a>
     </div>
   </div>
 
   <hr>
 
-  <h4 class="section-title"><i class="fas fa-check-circle text-success me-1"></i> Retiros aprobados</h4>
+  <h4 class="section-title"><i class="fas fa-check-circle text-success me-1" aria-hidden="true"></i> Retiros aprobados</h4>
   {% if aprobados %}
-    <div class="table-responsive">
-      <table class="civistock-table">
+    <div class="civistock-table-wrapper">
+      <table class="civistock-table" aria-label="Retiros aprobados">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -38,11 +38,11 @@
         <tbody>
           {% for mov in aprobados %}
             <tr>
-              <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
-              <td>{{ mov.material.nombre }}</td>
-              <td>{{ mov.cantidad|formatear_numero }}</td>
-              <td>{{ mov.observacion or 'Sin observación' }}</td>
-              <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+              <td data-label="Fecha">{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+              <td data-label="Material">{{ mov.material.nombre }}</td>
+              <td data-label="Cantidad">{{ mov.cantidad|formatear_numero }}</td>
+              <td data-label="Obs. Ingeniero">{{ mov.observacion or 'Sin observación' }}</td>
+              <td data-label="Obs. Almacenista">{{ mov.observacion_almacenista or 'Sin observación' }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -54,10 +54,10 @@
 
   <hr>
 
-  <h4 class="section-title"><i class="fas fa-times-circle text-danger me-1"></i> Retiros rechazados</h4>
+  <h4 class="section-title"><i class="fas fa-times-circle text-danger me-1" aria-hidden="true"></i> Retiros rechazados</h4>
   {% if rechazados %}
-    <div class="table-responsive">
-      <table class="civistock-table">
+    <div class="civistock-table-wrapper">
+      <table class="civistock-table" aria-label="Retiros rechazados">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -70,11 +70,11 @@
         <tbody>
           {% for mov in rechazados %}
             <tr>
-              <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
-              <td>{{ mov.material.nombre }}</td>
-              <td>{{ mov.cantidad|formatear_numero }}</td>
-              <td>{{ mov.observacion or 'Sin observación' }}</td>
-              <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+              <td data-label="Fecha">{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+              <td data-label="Material">{{ mov.material.nombre }}</td>
+              <td data-label="Cantidad">{{ mov.cantidad|formatear_numero }}</td>
+              <td data-label="Obs. Ingeniero">{{ mov.observacion or 'Sin observación' }}</td>
+              <td data-label="Obs. Almacenista">{{ mov.observacion_almacenista or 'Sin observación' }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -86,10 +86,10 @@
 
   <hr>
 
-  <h4 class="section-title"><i class="fas fa-undo-alt text-warning me-1"></i> Devoluciones solicitadas</h4>
+  <h4 class="section-title"><i class="fas fa-undo-alt text-warning me-1" aria-hidden="true"></i> Devoluciones solicitadas</h4>
   {% if devoluciones %}
-    <div class="table-responsive">
-      <table class="civistock-table">
+    <div class="civistock-table-wrapper">
+      <table class="civistock-table" aria-label="Devoluciones solicitadas">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -105,21 +105,21 @@
           {% for mov in devoluciones %}
             {% set extension = mov.evidencia.split('.')[-1].lower() if mov.evidencia else '' %}
             <tr>
-              <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
-              <td>{{ mov.material.nombre }}</td>
-              <td>{{ mov.cantidad|formatear_numero }}</td>
-              <td>
+              <td data-label="Fecha">{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+              <td data-label="Material">{{ mov.material.nombre }}</td>
+              <td data-label="Cantidad">{{ mov.cantidad|formatear_numero }}</td>
+              <td data-label="Estado">
                 {% if mov.estado == 'AUTORIZADO' %}
-                  <span class="badge estado aprobado"><i class="fas fa-check-circle me-1"></i> {{ mov.estado.title() }}</span>
+                  <span class="badge estado aprobado" aria-label="Autorizado"><i class="fas fa-check-circle me-1" aria-hidden="true"></i> {{ mov.estado.title() }}</span>
                 {% elif mov.estado == 'RECHAZADO' %}
-                  <span class="badge estado rechazado"><i class="fas fa-times-circle me-1"></i> {{ mov.estado.title() }}</span>
+                  <span class="badge estado rechazado" aria-label="Rechazado"><i class="fas fa-times-circle me-1" aria-hidden="true"></i> {{ mov.estado.title() }}</span>
                 {% else %}
-                  <span class="badge estado pendiente"><i class="fas fa-clock me-1"></i> {{ mov.estado.title() }}</span>
+                  <span class="badge estado pendiente" aria-label="Pendiente"><i class="fas fa-clock me-1" aria-hidden="true"></i> {{ mov.estado.title() }}</span>
                 {% endif %}
               </td>
-              <td>{{ mov.observacion or 'Sin observación' }}</td>
-              <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
-              <td>
+              <td data-label="Obs. Ingeniero">{{ mov.observacion or 'Sin observación' }}</td>
+              <td data-label="Obs. Almacenista">{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+              <td data-label="Evidencia">
                 {% if mov.evidencia %}
                   <img src="{% if extension in ['jpg','jpeg','png','gif'] %}{{ url_for('static', filename='evidencias/' ~ mov.evidencia) }}{% else %}{{ url_for('static', filename='icono_pdf.png') }}{% endif %}"
                        alt="Evidencia"
@@ -138,7 +138,7 @@
                           {% if extension in ['jpg','jpeg','png','gif'] %}
                             <img src="{{ url_for('static', filename='evidencias/' ~ mov.evidencia) }}" class="img-fluid rounded" alt="Evidencia">
                           {% elif extension == 'pdf' %}
-                            <iframe src="{{ url_for('static', filename='evidencias/' ~ mov.evidencia) }}" width="100%" height="600px" style="border: none;"></iframe>
+                            <iframe src="{{ url_for('static', filename='evidencias/' ~ mov.evidencia) }}" width="100%" height="600px" style="border: none;" aria-label="PDF de evidencia"></iframe>
                           {% else %}
                             <p>No se puede mostrar vista previa. <a href="{{ url_for('static', filename='evidencias/' ~ mov.evidencia) }}" target="_blank">Descargar archivo</a></p>
                           {% endif %}

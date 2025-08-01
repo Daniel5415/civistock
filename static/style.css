@@ -1717,8 +1717,15 @@ h2 {
 /* --------- REPORTES ALMACENISTA ------- */
 /* ------------------------------------- */
 
+:root {
+  --radius: 10px;
+  --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.04);
+  --transition: .2s ease;
+}
+
+/* ---------- Títulos ---------- */
 h2 {
-  font-size: 2rem;
+  font-size: clamp(1.75rem, 2.5vw, 2rem);
   font-weight: 700;
   color: #ee7021;
   text-align: center;
@@ -1727,11 +1734,11 @@ h2 {
   align-items: center;
   gap: 10px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-/* ----------- Subtítulos ----------- */
 h4 {
-  font-size: 1.25rem;
+  font-size: clamp(1.1rem, 1.3vw, 1.25rem);
   font-weight: 600;
   margin-top: 40px;
   margin-bottom: 15px;
@@ -1743,11 +1750,17 @@ h4 {
 /* ----------- Botones ----------- */
 .btn {
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-weight: 500;
   font-size: 0.95rem;
   box-shadow: 0 3px 10px rgba(0,0,0,0.04);
   transition: transform .15s ease, box-shadow .2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
 }
 
 .btn-secondary {
@@ -1774,10 +1787,12 @@ h4 {
 
 /* ----------- Tablas ----------- */
 .table-responsive {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-soft);
   border-radius: 12px;
   overflow: hidden;
   margin-top: 10px;
+  background: #fff;
+  position: relative;
 }
 
 table.table {
@@ -1785,6 +1800,7 @@ table.table {
   margin-bottom: 0;
   border-collapse: collapse;
   background-color: #fff;
+  min-width: 700px; /* para evitar que columnas se amontonen en tablet */
 }
 
 .table thead th {
@@ -1793,10 +1809,11 @@ table.table {
   z-index: 2;
   background-color: #f5f6f8;
   text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #666;
   padding: 12px 16px;
   border-bottom: 2px solid #dee2e6;
+  text-align: left;
 }
 
 .table td {
@@ -1805,6 +1822,7 @@ table.table {
   border-bottom: 1px solid #eee;
   color: #333;
   vertical-align: top;
+  word-break: break-word;
 }
 
 /* ----------- Modal evidencias ----------- */
@@ -1812,6 +1830,9 @@ table.table {
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.2s ease;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 .img-thumbnail:hover {
@@ -1825,6 +1846,7 @@ table.table {
 
 .modal-content {
   border-radius: 12px;
+  max-width: 100%;
 }
 
 /* ----------- PDF botón ----------- */
@@ -1840,16 +1862,22 @@ table.table {
   color: #888;
 }
 
-/* ----------- Responsive ----------- */
-@media (max-width: 768px) {
+/* ----------- Responsive mejorado ----------- */
+@media (max-width: 1024px) {
+  table.table {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
   .container {
-    padding: 20px 10px;
+    padding: 20px 12px;
   }
 
+  /* Tabla en modo card */
   .table thead {
     display: none;
   }
-
   .table,
   .table tbody,
   .table tr,
@@ -1857,30 +1885,49 @@ table.table {
     display: block;
     width: 100%;
   }
-
   .table tr {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
     background: #fff;
-    padding: 10px 12px;
+    padding: 14px 16px;
+    position: relative;
   }
-
   .table td {
-    padding: 10px 0;
+    padding: 8px 0;
     border: none;
   }
-
   .table td::before {
     content: attr(data-label);
     font-weight: 600;
-    color: #888;
+    color: #555;
     display: block;
     margin-bottom: 4px;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  /* Separador visual entre secciones dentro de la tarjeta */
+  .table td + td {
+    margin-top: 6px;
   }
 }
+
+/* Ajustes extra para móviles pequeños */
+@media (max-width: 600px) {
+  h2 {
+    font-size: 1.6rem;
+    gap: 6px;
+  }
+  h4 {
+    font-size: 1rem;
+  }
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ----------------------------------- */
 /* --------- REVISAR DEVOLUCIONES ------- */
 /* ----------------------------------- */
@@ -2630,15 +2677,40 @@ p {
   outline: 2px dashed #ee7021;
   outline-offset: 2px;
 }
+@media (max-width: 768px) {
+  .header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  h2 {
+    order: 1;
+    width: 100%;
+  }
+  .btn-volver {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ------------------------------- */
 /* --------- REPORTES DE RETIROS ING ------- */
 /* ------------------------------- */
+
+:root {
+  --radius: 12px;
+  --shadow: 0 6px 24px rgba(0,0,0,0.04);
+  --transition: .2s ease;
+}
+
 /* Contenedor general del reporte */
 .content-container {
   max-width: 1150px;
   margin: 0 auto 40px;
   padding: 30px 20px;
   background: #f5f6f8;
+  box-sizing: border-box;
 }
 
 /* Header y botones */
@@ -2651,17 +2723,26 @@ p {
 }
 
 .title-wrapper h2 {
-  font-size: 1.9rem;
+  font-size: clamp(1.75rem, 2.2vw, 1.9rem);
   font-weight: 700;
   color: #ee7021;
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.buttons-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .buttons-group a {
-  margin-left: 8px;
+  margin-left: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2671,6 +2752,7 @@ p {
   font-size: 0.9rem;
   text-decoration: none;
   transition: background .2s ease, transform .15s ease;
+  white-space: nowrap;
 }
 
 .buttons-group .btn-warning {
@@ -2715,14 +2797,20 @@ p {
 }
 
 /* Tabla CIVISTOCK */
+.civistock-table-wrapper {
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fff;
+  margin-top: 10px;
+}
+
 .civistock-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.04);
   font-size: 0.9rem;
+  min-width: 700px; /* permite scroll horizontal en tablets */
 }
 
 .civistock-table thead th {
@@ -2746,6 +2834,7 @@ p {
   vertical-align: top;
   color: #333;
   background: #fff;
+  word-break: break-word;
 }
 
 .civistock-table tbody tr:hover {
@@ -2762,6 +2851,7 @@ p {
   font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .badge.estado.aprobado {
@@ -2810,20 +2900,88 @@ p {
   font-size: 0.85rem;
 }
 
-/* Responsive */
-@media (max-width: 992px) {
+/* ------------------ RESPONSIVE ------------------ */
+
+/* scroll horizontal como fallback */
+.civistock-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tablet y pantallas medianas */
+@media (max-width: 1024px) {
+  .civistock-table {
+    min-width: 100%;
+  }
+}
+
+/* Modo card para móvil pequeño */
+@media (max-width: 900px) {
   .header-reportes {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .buttons-group {
     margin-top: 10px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .buttons-group a {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .civistock-table {
+    display: block;
+    min-width: 0;
+    font-size: 0.85rem;
+  }
+  .civistock-table thead {
+    display: none;
+  }
+  .civistock-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .civistock-table tbody tr {
+    display: block;
+    border: 1px solid #e3e8ee;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #fff;
+    position: relative;
+    margin: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  }
+  .civistock-table tbody td {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    padding: 8px 0;
+    border: none;
+    position: relative;
+  }
+  .civistock-table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 45%;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    color: #555;
+    margin-right: 8px;
   }
 }
+
+/* Ajustes extra móviles muy pequeños */
+@media (max-width: 600px) {
+  .title-wrapper h2 {
+    font-size: 1.6rem;
+  }
+  .section-title {
+    font-size: 1rem;
+  }
+}
+
 /* ----------------------------------- */
 /* --------- REALIZAR DEVOLUCIÓN ------- */
 /* ----------------------------------- */
