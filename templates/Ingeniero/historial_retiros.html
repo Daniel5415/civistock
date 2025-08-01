@@ -4,75 +4,77 @@
 
 {% block content %}
 
-  <!-- Botón para volver al dashboard -->
-  <div class="mb-4">
+  <!-- Header: botón y título -->
+  <div class="header-wrapper mb-4">
     <a href="{{ url_for('ingeniero.dashboard') }}" class="btn-volver">
       <i class="fas fa-arrow-left me-1"></i> Volver al dashboard
     </a>
-  </div>
 
-  <h2 class="mb-3">
-    <i class="fas fa-history me-2"></i> Historial de Retiros
-  </h2>
+    <h2 class="mb-0">
+      <i class="fas fa-history me-2"></i> Historial de Retiros
+    </h2>
+  </div>
 
   {% if movimientos %}
     <div class="table-responsive">
-      <table class="historial-table">
-        <thead>
-          <tr>
-            <th>Material</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Observación del almacenista</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for mov in movimientos %}
-            {%- set row_class = "" -%}
-            {%- if mov.tipo == 'DEVOLUCION' -%}
-              {%- set row_class = "tipo-devolucion" -%}
-            {%- elif mov.estado == 'RECHAZADO' -%}
-              {%- set row_class = "estado-rechazado" -%}
-            {%- elif mov.estado == 'AUTORIZADO' -%}
-              {%- set row_class = "estado-autorizado" -%}
-            {%- endif -%}
-            <tr class="{{ row_class }}">
-              <td>
-                {% if mov.tipo == 'DEVOLUCION' %}
-                  <i class="fas fa-undo-alt text-warning me-1"></i> {{ mov.material.nombre }}
-                {% else %}
-                  <i class="fas fa-box-arrow-up-right text-primary me-1"></i> {{ mov.material.nombre }}
-                {% endif %}
-              </td>
-              <td>{{ mov.cantidad|formatear_numero }}</td>
-              <td>{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
-              <td>
-                {% if mov.tipo == 'DEVOLUCION' %}
-                  {% if mov.estado == 'AUTORIZADO' %}
-                    <span class="badge devolucion aceptada"><i class="fas fa-check-circle me-1"></i> Devolución aceptada</span>
-                  {% elif mov.estado == 'RECHAZADO' %}
-                    <span class="badge devolucion rechazada"><i class="fas fa-xmark-circle me-1"></i> Devolución rechazada</span>
-                  {% else %}
-                    <span class="badge devolucion pendiente"><i class="fas fa-clock me-1"></i> Devolución pendiente</span>
-                  {% endif %}
-                {% else %}
-                  {% if mov.estado == 'PENDIENTE' %}
-                    <span class="badge retiro pendiente"><i class="fas fa-hourglass-half me-1"></i> Retiro pendiente</span>
-                  {% elif mov.estado == 'AUTORIZADO' %}
-                    <span class="badge retiro autorizado"><i class="fas fa-check-circle me-1"></i> Retiro autorizado</span>
-                  {% elif mov.estado == 'RECHAZADO' %}
-                    <span class="badge retiro rechazado"><i class="fas fa-xmark-circle me-1"></i> Retiro rechazado</span>
-                  {% else %}
-                    <span class="badge">{{ mov.estado }}</span>
-                  {% endif %}
-                {% endif %}
-              </td>
-              <td>{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+      <div class="table-scroll">
+        <table class="historial-table" aria-label="Historial de retiros y devoluciones">
+          <thead>
+            <tr>
+              <th>Material</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Observación del almacenista</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for mov in movimientos %}
+              {%- set row_class = "" -%}
+              {%- if mov.tipo == 'DEVOLUCION' -%}
+                {%- set row_class = "tipo-devolucion" -%}
+              {%- elif mov.estado == 'RECHAZADO' -%}
+                {%- set row_class = "estado-rechazado" -%}
+              {%- elif mov.estado == 'AUTORIZADO' -%}
+                {%- set row_class = "estado-autorizado" -%}
+              {%- endif -%}
+              <tr class="{{ row_class }}">
+                <td data-label="Material">
+                  {% if mov.tipo == 'DEVOLUCION' %}
+                    <i class="fas fa-undo-alt text-warning me-1" aria-hidden="true"></i> {{ mov.material.nombre }}
+                  {% else %}
+                    <i class="fas fa-box-arrow-up-right text-primary me-1" aria-hidden="true"></i> {{ mov.material.nombre }}
+                  {% endif %}
+                </td>
+                <td data-label="Cantidad">{{ mov.cantidad|formatear_numero }}</td>
+                <td data-label="Fecha">{{ mov.fecha_local.fecha }} {{ mov.fecha_local.hora }}</td>
+                <td data-label="Estado">
+                  {% if mov.tipo == 'DEVOLUCION' %}
+                    {% if mov.estado == 'AUTORIZADO' %}
+                      <span class="badge devolucion aceptada" role="status"><i class="fas fa-check-circle me-1" aria-hidden="true"></i> Devolución aceptada</span>
+                    {% elif mov.estado == 'RECHAZADO' %}
+                      <span class="badge devolucion rechazada" role="status"><i class="fas fa-xmark-circle me-1" aria-hidden="true"></i> Devolución rechazada</span>
+                    {% else %}
+                      <span class="badge devolucion pendiente" role="status"><i class="fas fa-clock me-1" aria-hidden="true"></i> Devolución pendiente</span>
+                    {% endif %}
+                  {% else %}
+                    {% if mov.estado == 'PENDIENTE' %}
+                      <span class="badge retiro pendiente" role="status"><i class="fas fa-hourglass-half me-1" aria-hidden="true"></i> Retiro pendiente</span>
+                    {% elif mov.estado == 'AUTORIZADO' %}
+                      <span class="badge retiro autorizado" role="status"><i class="fas fa-check-circle me-1" aria-hidden="true"></i> Retiro autorizado</span>
+                    {% elif mov.estado == 'RECHAZADO' %}
+                      <span class="badge retiro rechazado" role="status"><i class="fas fa-xmark-circle me-1" aria-hidden="true"></i> Retiro rechazado</span>
+                    {% else %}
+                      <span class="badge" role="status">{{ mov.estado }}</span>
+                    {% endif %}
+                  {% endif %}
+                </td>
+                <td data-label="Observación del almacenista">{{ mov.observacion_almacenista or 'Sin observación' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   {% else %}
     <p>No hay retiros registrados.</p>

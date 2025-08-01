@@ -2386,15 +2386,28 @@ button[type="submit"]:hover {
 /* --------------------------------------- */
 /* --------- ESTILO HISTÓRICO RETIROS ------- */
 /* ------------------------------------- */
+
+/* ---------- Reset/ajustes base responsive ---------- */
+:root {
+  --radius: 10px;
+  --shadow: 0 8px 30px rgba(0,0,0,0.05);
+  --transition: .2s ease;
+}
+
+/* Meta: asegúrate en el head de tener
+<meta name="viewport" content="width=device-width, initial-scale=1">
+*/
+
 /* ---------- Título y botón volver ---------- */
 h2 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 2vw, 2rem);
   font-weight: 700;
   color: #ee7021;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn-volver {
@@ -2402,7 +2415,7 @@ h2 {
   color: #3e494e;
   border: 1px solid #d8dce0;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-weight: 500;
   text-decoration: none;
   display: inline-flex;
@@ -2410,10 +2423,19 @@ h2 {
   gap: 4px;
   box-shadow: 0 3px 12px rgba(0,0,0,0.04);
   transition: transform .15s ease, box-shadow .2s ease;
+  flex-shrink: 0;
 }
 .btn-volver:hover {
   background: #f0f2f6;
   transform: translateY(-1px);
+}
+
+/* contenedor general para espaciar en mobile */
+.header-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 /* ---------- Tabla histórica ---------- */
@@ -2421,14 +2443,23 @@ h2 {
   margin-top: 10px;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow);
   background: #fff;
+  position: relative;
 }
 
+/* Forzar scroll horizontal si no cabe */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tabla base */
 .historial-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
+  min-width: 600px; /* permite scroll en pantallas muy angostas */
 }
 
 .historial-table thead th {
@@ -2442,6 +2473,7 @@ h2 {
   color: #555;
   border-bottom: 2px solid #e0e4e8;
   text-align: left;
+  vertical-align: middle;
 }
 
 .historial-table tbody td {
@@ -2453,7 +2485,7 @@ h2 {
 
 /* Hover de fila */
 .historial-table tbody tr {
-  transition: background .2s ease;
+  transition: background var(--transition);
 }
 .historial-table tbody tr:hover {
   background: #f9fcfe;
@@ -2469,6 +2501,7 @@ h2 {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .retiro.autorizado {
@@ -2518,6 +2551,84 @@ h2 {
 p {
   font-size: 1rem;
   color: #555;
+  margin: 0;
+}
+
+/* ------------------------------------------------ */
+/* --------- ADAPTACIONES PARA PANTALLAS PEQUEÑAS -- */
+/* ------------------------------------------------ */
+
+/* Card view para móvil: convierte filas en bloques legibles */
+@media (max-width: 900px) {
+  .historial-table {
+    display: block;
+    min-width: 0;
+    font-size: 0.9rem;
+  }
+  .historial-table thead {
+    display: none; /* ocultar encabezado original */
+  }
+  .historial-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .historial-table tbody tr {
+    display: block;
+    border: 1px solid #e3e8ee;
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    position: relative;
+    margin-bottom: 0;
+  }
+  .historial-table tbody td {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 6px 0;
+    border: none;
+    position: relative;
+  }
+  .historial-table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 45%;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.55rem;
+    color: #666;
+    margin-right: 8px;
+  }
+  .historial-table tbody td .badge {
+    margin-top: 4px;
+  }
+  .historial-table tbody tr + tr {
+    margin-top: 8px;
+  }
+}
+
+/* Fallback: si es tablet pequeño, permitir scroll horizontal sin romper */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .historial-table {
+    min-width: 800px;
+  }
+}
+
+/* Ajustes de espaciamiento en mobile para header */
+@media (max-width: 768px) {
+  .header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-volver {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Para accesibilidad: focus claro en elementos interactivos */
+.btn-volver:focus {
+  outline: 2px dashed #ee7021;
+  outline-offset: 2px;
 }
 /* ------------------------------- */
 /* --------- REPORTES DE RETIROS ING ------- */
