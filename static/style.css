@@ -473,36 +473,40 @@ body.login-mode .index-container {
   white-space: nowrap;
 }
 
-/* Asegura que el acordeón no se desborde y esté alineado con el contenido */
+/* Quitar cualquier indentación extra del acordeón */
+.ayuda-container {
+  padding-left: 16px; /* o ajusta a 12px si aún se ve muy separado */
+  padding-right: 16px;
+}
+
 .ayuda-container .accordion {
-  width: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 
-/* Normaliza los items del acordeón */
+/* Asegura que cada item no tenga margen lateral oculto */
 .accordion-item {
-  width: 100%;
   margin: 0;
   padding: 0;
-  border: none;
 }
 
-/* Botones del acordeón consistentes y sin desplazamiento */
+/* Reducir el padding izquierdo si se siente mucho espacio dentro del botón */
 .accordion-button {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin: 0;
-  font-weight: 600;
-  background: #f8f9fa;
-  border: 1px solid #e2e5ea;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-wrap: break-word;
+  padding-left: 0.75rem; /* puedes bajarlo a 0.5rem si quieres más compacto */
 }
 
+/* Si algún wrapper de Bootstrap está introduciendo indent, forzarlo */
+.accordion,
+.accordion .accordion-item,
+.accordion-button {
+  box-sizing: border-box;
+}
+
+/* Opcional: hacer que el título del acordeón y su fondo ocupen todo sin desplazamiento visual */
+.accordion-button {
+  border-radius: 6px;
+}
 .accordion-button:not(.collapsed) {
   background: #e9eef6;
 }
