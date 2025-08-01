@@ -780,6 +780,115 @@ body.login-mode .index-container {
   border-radius: 50%;
   border: 2px solid #ccc;
 }
+/* ---------- Ajustes responsive para lista de usuarios ---------- */
+
+/* Sistema de caja para consistencia */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Contenedor más adaptable */
+.container-lista-usuarios {
+  padding: clamp(20px, 4vw, 40px) 16px;
+}
+
+/* Título adaptable */
+.titulo-lista-usuarios {
+  font-size: clamp(1.75rem, 2.5vw, 2.2rem);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Barra de acciones apilable en móvil */
+.actions-bar {
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+/* Botones toman todo en móvil pequeño */
+@media (max-width: 900px) {
+  .actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-secundario,
+  .btn-principal {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Card view para móvil: convierte cada fila en tarjeta */
+@media (max-width: 850px) {
+  .tabla-usuarios thead {
+    display: none;
+  }
+
+  .tabla-usuarios,
+  .tabla-usuarios tbody,
+  .tabla-usuarios tr,
+  .tabla-usuarios td {
+    display: block;
+    width: 100%;
+  }
+
+  .tabla-usuarios tr {
+    margin-bottom: 16px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    border: 1px solid #e6e8ec;
+  }
+
+  .tabla-usuarios td {
+    padding: 6px 0;
+    border: none;
+    position: relative;
+  }
+
+  .tabla-usuarios td::before {
+    content: attr(data-label);
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-size: 0.55rem;
+    color: #555;
+    letter-spacing: 0.5px;
+  }
+
+  .foto-usuario {
+    width: 60px;
+    height: 60px;
+    margin-top: 4px;
+  }
+
+  .btn-accion {
+    margin: 4px 4px 0 0;
+    width: auto;
+  }
+}
+
+/* En pantallas muy pequeñas, compactar aún más */
+@media (max-width: 500px) {
+  .titulo-lista-usuarios {
+    font-size: 1.5rem;
+  }
+
+  .btn-accion {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .foto-usuario {
+    width: 50px;
+    height: 50px;
+  }
+}
 
 /* ----------------------------------- */
 /* --------- EDITAR USUARIO ------- */
