@@ -445,6 +445,69 @@ body.login-mode .index-container {
   }
 }
 
+/* caja universal para evitar cálculos raros en ancho */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Asegura que el acordeón no desborde y esté alineado */
+.ayuda-container .accordion {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Los headers ocupan todo y no tienen offsets raros */
+.accordion-item {
+  width: 100%;
+  border: none; /* opcional: si quieres limpiar bordes externos */
+}
+
+.accordion-button {
+  padding: 0.75rem 1rem;
+  margin: 0;
+  width: 100%;
+  font-weight: 600;
+  background: #f8f9fa;
+  border: 1px solid #e2e5ea;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Cuando está colapsado, mantener consistencia visual */
+.accordion-button:not(.collapsed) {
+  background: #e9eef6;
+}
+
+/* Cuerpo del acordeón dentro del contenedor sin salirse */
+.accordion-body {
+  padding: 1rem 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e2e5ea;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  overflow-wrap: break-word;
+}
+
+/* Asegura que los iconos/textos no causen overflow */
+.accordion-button i {
+  flex-shrink: 0;
+}
+.ayuda-container {
+  overflow-x: hidden;
+}
+
+/* Evita que títulos largos rompan */
+.ayuda-container h1,
+.ayuda-section h2 {
+  word-break: break-word;
+}
+
+
 /* ----------------------------------- */
 
 .photo-perfil {
