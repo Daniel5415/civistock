@@ -5,12 +5,14 @@
 {% block content %}
 
 <div class="ayuda-container">
-  <a href="{{ url_for(user_role.lower() + '.dashboard') }}" class="btn btn-volver-panel">
-    🔙 Volver al Panel Principal
-  </a>
-  <h1 class="mb-4">Centro de Ayuda - CIVISTOCK</h1>
-  <div class="accordion" id="ayudaAccordion"></div>
-</div>
+  <div class="help-header">
+    <a href="{{ url_for(user_role.lower() + '.dashboard') }}" class="btn btn-volver-panel">
+      🔙 Volver al Panel Principal
+    </a>
+    <h1 class="mb-4">Centro de Ayuda - CIVISTOCK</h1>
+  </div>
+
+  <div class="accordion" id="ayudaAccordion">
 
     <!-- Sección 1 -->
     <div class="accordion-item">

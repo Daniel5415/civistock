@@ -445,30 +445,54 @@ body.login-mode .index-container {
   }
 }
 
-/* caja universal para evitar cálculos raros en ancho */
+/* caja universal para evitar cálculos raros */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* Asegura que el acordeón no desborde y esté alineado */
+/* Header del ayuda: botón y título alineados */
+.help-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.help-header h1 {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  word-break: break-word;
+}
+
+.btn-volver-panel {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Asegura que el acordeón no se desborde y esté alineado con el contenido */
 .ayuda-container .accordion {
   width: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* Los headers ocupan todo y no tienen offsets raros */
+/* Normaliza los items del acordeón */
 .accordion-item {
   width: 100%;
-  border: none; /* opcional: si quieres limpiar bordes externos */
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
+/* Botones del acordeón consistentes y sin desplazamiento */
 .accordion-button {
+  width: 100%;
   padding: 0.75rem 1rem;
   margin: 0;
-  width: 100%;
   font-weight: 600;
   background: #f8f9fa;
   border: 1px solid #e2e5ea;
@@ -476,14 +500,14 @@ body.login-mode .index-container {
   display: flex;
   align-items: center;
   gap: 8px;
+  overflow-wrap: break-word;
 }
 
-/* Cuando está colapsado, mantener consistencia visual */
 .accordion-button:not(.collapsed) {
   background: #e9eef6;
 }
 
-/* Cuerpo del acordeón dentro del contenedor sin salirse */
+/* Cuerpo del acordeón alineado perfectamente bajo su header */
 .accordion-body {
   padding: 1rem 1rem 1.25rem;
   background: #fff;
@@ -493,18 +517,36 @@ body.login-mode .index-container {
   overflow-wrap: break-word;
 }
 
-/* Asegura que los iconos/textos no causen overflow */
-.accordion-button i {
-  flex-shrink: 0;
-}
+/* Evita scroll horizontal inesperado */
 .ayuda-container {
   overflow-x: hidden;
 }
 
-/* Evita que títulos largos rompan */
-.ayuda-container h1,
-.ayuda-section h2 {
-  word-break: break-word;
+/* Ajustes móviles */
+@media (max-width: 900px) {
+  .help-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .btn-volver-panel {
+    width: 100%;
+    justify-content: center;
+    display: inline-flex;
+    padding: 10px 14px;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+  }
+
+  .ayuda-container {
+    margin: 10px;
+    padding: 16px;
+  }
+
+  .accordion-button {
+    font-size: 0.9rem;
+  }
 }
 
 
